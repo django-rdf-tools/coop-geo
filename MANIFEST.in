@@ -1,0 +1,3 @@
+recursive-include coop_geo/static *
+recursive-include coop_geo/templates *
+recursive-include coop_geo/locale *
