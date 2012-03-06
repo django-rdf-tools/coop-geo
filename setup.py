@@ -29,7 +29,7 @@ setup(
     url = "https://github.com/quinode/coop-geo/",
     download_url = "https://github.com/quinode/coop-geo/tarball/master",
     zip_safe = False,
-    install_requires = ['coop',
+    install_requires = ['django-coop',
                         'django-floppyforms==0.4.7',
                         ],
     classifiers = [
