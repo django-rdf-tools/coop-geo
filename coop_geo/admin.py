@@ -13,6 +13,10 @@ class LocationAdmin(admin.ModelAdmin):
     form = forms.LocationForm
 admin.site.register(models.Location, LocationAdmin)
 
+class AreaTypeAdmin(admin.ModelAdmin):
+    list_display = ['label',]
+admin.site.register(models.AreaType, AreaTypeAdmin)
+
 class AreaParentRelInline(admin.TabularInline):
     model = models.AreaRelations
     verbose_name = _(u"Included area")

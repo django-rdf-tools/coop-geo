@@ -4,6 +4,8 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 
+from chosen import widgets as chosenwidgets
+
 import floppyforms as forms
 import models
 import widgets
@@ -33,4 +35,5 @@ class AreaForm(forms.ModelForm):
         widgets = {
             'label': forms.TextInput(),
             'polygon': widgets.PolygonWidget(),
+            'default_location': chosenwidgets.ChosenSelect()
         }

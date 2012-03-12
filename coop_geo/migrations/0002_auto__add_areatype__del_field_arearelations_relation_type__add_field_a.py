@@ -3,7 +3,14 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from coop_geo.models import AREA_TYPES
+
+AREA_TYPES = (('TW', u'town'),
+              ('DP', u"departement"),
+              ('CT', u"district"),
+              ('CC', u"town group"),
+              ('RG', u"region"),
+              ('PY', u"country"),
+             )
 
 class Migration(SchemaMigration):
 

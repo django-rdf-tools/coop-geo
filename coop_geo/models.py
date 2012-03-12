@@ -96,27 +96,21 @@ class AreaType(models.Model):
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
     txt_idx = models.CharField(verbose_name=_(u"mnemonic"), max_length='50')
 
-AREA_TYPES = (('TW', u'town'),
-              ('DP', u"departement"),
-              #('CT', _(u"district")), #canton
-              ('CC', u"town group"),
-              ('RG', u"region"),
-              ('PY', u"country"),
-             )
+    def __unicode__(self):
+        return self.label
 
 class Area(models.Model):
     """Areas: towns, regions, ... mainly set by import"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
     reference = models.CharField(max_length=150, verbose_name=_(u"reference"),
                                  blank=True, null=True)
-    polygon = models.MultiPolygonField(_(u"polygon"),
-                                  srid=settings.COOP_GEO_EPSG_PROJECTION)
     default_location = models.ForeignKey(Location, blank=True, null=True,
             verbose_name=_(u"default location"), related_name='associated_area')
     related_areas = models.ManyToManyField('Area',
             verbose_name=_(u"related area"), through='AreaRelations')
-    area_type = models.ForeignKey(AreaType, verbose_name=_(u"type"),
-                                      blank=True, null=True)
+    area_type = models.ForeignKey(AreaType, verbose_name=_(u"type"))
+    polygon = models.MultiPolygonField(_(u"polygon"),
+                                  srid=settings.COOP_GEO_EPSG_PROJECTION)
 
     # when set to true a "parent" area is automaticaly updated with the add
     # of new childs
