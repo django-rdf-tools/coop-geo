@@ -3,6 +3,8 @@
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from coop.utils.autocomplete_admin import InlineAutocompleteAdmin
+
 
 import models
 import forms
@@ -24,10 +26,11 @@ class AreaParentRelInline(admin.TabularInline):
     extra = 1
     fk_name = 'parent'
 
-class AreaChildRelInline(admin.TabularInline):
+class AreaChildRelInline(InlineAutocompleteAdmin):
     model = models.AreaRelations
     verbose_name = _(u"Inside area")
     verbose_name_plural = _(u"Inside areas")
+    related_search_fields = {'child': ('label', 'reference'),}
     extra = 1
     fk_name = 'child'
 
