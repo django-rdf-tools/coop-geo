@@ -75,6 +75,6 @@ class Command(BaseCommand):
                 log_file.write("#"*len(lbl))
                 log_file.write('\n\n')
                 for item in items:
-                    log_file.write(item + '\n')
+                    log_file.write(item.encode("utf-8") + '\n')
                 log_file.write('\n\n')
 
