@@ -30,8 +30,6 @@ class Command(BaseCommand):
             addr = location.city.replace(' ', '+')
             if location.adr1:
                 addr += ",+" + location.adr1.replace(' ', '+')
-            if location.zipcode:
-                addr += ",+" + location.zipcode.replace(' ', '+')
             try:
                 r = urllib2.urlopen(GMAP_URL % addr)
             except urllib2.URLError:
@@ -76,4 +74,6 @@ class Command(BaseCommand):
                 for item in items:
                     log_file.write(item + '\n')
                 log_file.write('\n\n')
+        self.stdout.write("\nDetail de l'import dans le fichier %s\n" % \
+                          LOG_FILE_NAME)
 
