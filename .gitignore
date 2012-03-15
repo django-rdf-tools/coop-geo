@@ -1,4 +1,19 @@
+# File types #
+##############
 *.pyc
 *.swp
 *.bak
+*.tmproj
+*.egg-info
+/build
+/dist
+*/.hg
+.hg*
+.gitignore
+
+# OS generated files #
+######################
+.DS_Store
+Icon?
+Thumbs.db
 
