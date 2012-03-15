@@ -10,9 +10,7 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.geos.collections import GeometryCollection
 
-from coop_geo.models import Location, Area, AreaRelations, RELATION_TYPES
-
-DEFAULT_RELATION_TYPE = RELATION_TYPES[0][0]
+from coop_geo.models import Location, Area, AreaRelations
 
 class AreaTest(TestCase):
     def setUp(self):
@@ -41,11 +39,11 @@ class AreaTest(TestCase):
         area_full = Area.objects.create(label=u"Test full", update_auto=True,
                                         polygon=polygon_default)
         with self.assertRaises(ValidationError):
-            area_full.add_parent(area_full, DEFAULT_RELATION_TYPE)
+            area_full.add_parent(area_full)
         with self.assertRaises(ValidationError):
-            area_full.add_child(area_full, DEFAULT_RELATION_TYPE)
-        area_full.add_child(area_low, DEFAULT_RELATION_TYPE)
-        area_full.add_child(area_high, DEFAULT_RELATION_TYPE)
+            area_full.add_child(area_full)
+        area_full.add_child(area_low)
+        area_full.add_child(area_high)
         self.assertEqual(AreaRelations.objects.filter(
                          parent=area_full).count(), 2)
         self.assertEqual(AreaRelations.objects.filter(
@@ -78,18 +76,18 @@ class AreaTest(TestCase):
         """
         area_1 = Area.objects.create(label=u'Area 1', polygon=polygon)
         area_2 = Area.objects.create(label=u'Area 2', polygon=polygon)
-        area_1.add_child(area_2, DEFAULT_RELATION_TYPE)
+        area_1.add_child(area_2)
         area_3 = Area.objects.create(label=u'Area 3', polygon=polygon)
-        area_3.add_parent(area_2, DEFAULT_RELATION_TYPE)
+        area_3.add_parent(area_2)
         area_4 = Area.objects.create(label=u'Area 4', polygon=polygon)
         area_5 = Area.objects.create(label=u'Area 5', polygon=polygon)
-        area_5.add_parent(area_1, DEFAULT_RELATION_TYPE)
+        area_5.add_parent(area_1)
         area_6 = Area.objects.create(label=u'Area 6', polygon=polygon)
-        area_3.add_childs([area_4, area_6], DEFAULT_RELATION_TYPE)
+        area_3.add_childs([area_4, area_6])
         area_7 = Area.objects.create(label=u'Area 7', polygon=polygon)
-        area_5.add_childs([area_7], DEFAULT_RELATION_TYPE)
+        area_5.add_childs([area_7])
         area_8 = Area.objects.create(label=u'Area 8', polygon=polygon)
-        area_2.add_child(area_8, DEFAULT_RELATION_TYPE)
+        area_2.add_child(area_8)
         self.assertEqual(area_1.level, 0)
         self.assertEqual(area_2.level, 1)
         self.assertEqual(area_3.level, 2)

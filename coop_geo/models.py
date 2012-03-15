@@ -75,45 +75,47 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
 class Located(models.Model):
-    location = models.ForeignKey(Location,null=True,blank=True,verbose_name=_(u"location"))
-    main_location = models.BooleanField(default=False,verbose_name=_(u"main venue"))
-    location_type = models.CharField(blank=True, max_length=100,verbose_name=_(u"type of location"))
-    
+    location = models.ForeignKey(Location, null=True, blank=True,
+                                 verbose_name=_(u"location"))
+    main_location = models.BooleanField(default=False,
+                                 verbose_name=_(u"main venue"))
+    location_type = models.CharField(blank=True, max_length=100,
+                                 verbose_name=_(u"type of location"))
     # things which are located
     content_type = models.ForeignKey(ContentType,blank=True,null=True)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     def __unicode__(self):
         return unicode(self.content_object) + u" @ " + unicode(self.location)
+
     class Meta:
         verbose_name = _(u'Located item')
         verbose_name_plural = _(u'Located items')
-        
-        
 
 AREA_DEFAULT_LOCATION_LBL = _(u"%s (center)")
 
-AREA_TYPES = (('TW', _(u'town')),
-              ('DP', _(u"departement")),
-              #('CT', _(u"district")), #canton
-              ('CC', _(u"town group")),
-              ('RG', _(u"region")),
-              ('PY', _(u"country")),
-             )
+class AreaType(models.Model):
+    """Area type"""
+    label = models.CharField(max_length=150, verbose_name=_(u"label"))
+    txt_idx = models.CharField(verbose_name=_(u"mnemonic"), max_length='50')
+
+    def __unicode__(self):
+        return self.label
 
 class Area(models.Model):
     """Areas: towns, regions, ... mainly set by import"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
     reference = models.CharField(max_length=150, verbose_name=_(u"reference"),
                                  blank=True, null=True)
-    polygon = models.MultiPolygonField(_(u"polygon"),
-                                  srid=settings.COOP_GEO_EPSG_PROJECTION)
     default_location = models.ForeignKey(Location, blank=True, null=True,
             verbose_name=_(u"default location"), related_name='associated_area')
     related_areas = models.ManyToManyField('Area',
             verbose_name=_(u"related area"), through='AreaRelations')
-    area_type = models.CharField(max_length=2, verbose_name=_(u"type"),
-                                 choices=AREA_TYPES, default=u"TW")
+    area_type = models.ForeignKey(AreaType, verbose_name=_(u"type"))
+    polygon = models.MultiPolygonField(_(u"polygon"),
+                                  srid=settings.COOP_GEO_EPSG_PROJECTION)
+
     # when set to true a "parent" area is automaticaly updated with the add
     # of new childs
     update_auto = models.BooleanField(verbose_name=_(u"update automatically?"),
@@ -125,21 +127,21 @@ class Area(models.Model):
     def __unicode__(self):
         return self.label
 
-    def add_parent(self, parent, relation_type):
+    def add_parent(self, parent):
         if parent == self:
             raise ValidationError(u"You can't set a parent relative to itself.")
         self.related_areas.through.objects.get_or_create(child=self,
-                                    parent=parent, relation_type=relation_type)
+                                                         parent=parent)
 
-    def add_child(self, child, relation_type):
+    def add_child(self, child):
         if child == self:
             raise ValidationError(u"You can't set a parent relative to itself.")
         self.related_areas.through.objects.get_or_create(child=child,
-                                    parent=self, relation_type=relation_type)
+                                                         parent=self)
 
-    def add_childs(self, childs, relation_type):
+    def add_childs(self, childs):
         for child in childs:
-            self.add_child(child, relation_type)
+            self.add_child(child)
 
     def update_from_childs(self):
         if not self.update_auto or not self.child_rels.count():
@@ -259,19 +261,10 @@ class AreaLink(models.Model):
         verbose_name = _(u'Linked area')   
         verbose_name_plural = _(u'Linked areas')             
 
-RELATION_TYPES = (('PY', _(u"country")),
-                  ('RG', _(u'region')),
-                  #('CT', _(u"district")),#canton
-                  ('DP', _(u"departement")),
-                  ('CC', _(u"towns grouping")),
-                  )
-
 class AreaRelations(models.Model):
     """
     Relations between areas.
     """
-    relation_type = models.CharField(max_length=2, verbose_name=_(u"type"),
-                                     choices=RELATION_TYPES)
     parent = models.ForeignKey(Area, verbose_name=_(u"inside"),
                                related_name='child_rels')
     child = models.ForeignKey(Area, verbose_name=_(u"included"),
