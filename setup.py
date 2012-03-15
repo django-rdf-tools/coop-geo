@@ -21,6 +21,7 @@ setup(
     long_description = open('README.rst').read(),
     packages = ['coop_geo',
                 'coop_geo.management',
+                'coop_geo.management.commands',
                 'coop_geo.migrations',],
     include_package_data = True,
     author = 'Etienne Loks',

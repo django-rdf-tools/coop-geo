@@ -52,9 +52,9 @@ class Location(models.Model):
         return lbl
 
     def save(self, *args, **kwargs):
-        if not self.point and not self.area:
-            raise ValidationError(_(u"You must at least set a point or choose "
-                                    u"an area."))
+        # if not self.point and not self.area:
+        #     raise ValidationError(_(u"You must at least set a point or choose "
+        #                             u"an area."))
         if not self.label:
             self.label = self.adr1
         return super(Location, self).save(*args, **kwargs)

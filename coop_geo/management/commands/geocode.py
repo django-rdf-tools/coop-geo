@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, urllib2, time, json, random
+import os, urllib, urllib2, time, json, random
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 
-from geodjangofla.models import Commune, Departement, Canton
 from coop_geo import models
 
 GMAP_URL = "http://maps.googleapis.com/maps/api/geocode/json?address=%s"\
@@ -27,9 +26,11 @@ class Command(BaseCommand):
             self.stdout.write('\r * traitement %d/%d' % (idx+1, nb_locations))
             self.stdout.flush()
             time.sleep(0.5 + float('0.%d'%random.randint(1, 10)))
-            addr = location.city.replace(' ', '+')
+            addr = urllib.quote_plus(location.city.encode("utf-8"))
             if location.adr1:
-                addr += ",+" + location.adr1.replace(' ', '+')
+                addr += ",+" + urllib.quote_plus(location.adr1.encode("utf-8"))
+            if location.adr2:
+                addr += ",+" + urllib.quote_plus(location.adr2.encode("utf-8"))
             try:
                 r = urllib2.urlopen(GMAP_URL % addr)
             except urllib2.URLError:
@@ -72,7 +73,7 @@ class Command(BaseCommand):
                 log_file.write("#"*len(lbl))
                 log_file.write('\n\n')
                 for item in items:
-                    log_file.write(item + '\n')
+                    log_file.write(item.encode("utf-8") + '\n')
                 log_file.write('\n\n')
         self.stdout.write("\nDetail de l'import dans le fichier %s\n" % \
                           LOG_FILE_NAME)
