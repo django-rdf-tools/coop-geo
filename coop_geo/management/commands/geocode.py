@@ -6,7 +6,6 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 
-from geodjangofla.models import Commune, Departement, Canton
 from coop_geo import models
 
 GMAP_URL = "http://maps.googleapis.com/maps/api/geocode/json?address=%s"\
