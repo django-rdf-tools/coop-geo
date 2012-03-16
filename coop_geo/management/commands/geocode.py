@@ -82,4 +82,6 @@ class Command(BaseCommand):
                 for item in items:
                     log_file.write(item.encode("utf-8") + '\n')
                 log_file.write('\n\n')
+        self.stdout.write("\nDetail de l'import dans le fichier %s\n" % \
+                          LOG_FILE_NAME)
 
