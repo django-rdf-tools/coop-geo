@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = 'Geocodage google automatique de données depuis l\'adresse'
 
     def handle(self, *args, **options):
-        connection_failed, no_response = [], []
+        connection_failed, no_response, doubles = [], [], []
         many_responses, success = [], []
         locations = models.Location.objects.filter(point__isnull=True,
                                                    city__isnull=False)
@@ -31,6 +31,9 @@ class Command(BaseCommand):
                 addr += ",+" + urllib.quote_plus(location.adr1.encode("utf-8"))
             if location.adr2:
                 addr += ",+" + urllib.quote_plus(location.adr2.encode("utf-8"))
+            if location.zipcode:
+                addr += ",+" + urllib.quote_plus(location.zipcode.encode("utf-8"))
+            addr += "&region=fr"
             try:
                 r = urllib2.urlopen(GMAP_URL % addr)
             except urllib2.URLError:
@@ -60,13 +63,17 @@ class Command(BaseCommand):
             wkt = 'SRID=4326;POINT (%s %s)' % (latlon['lng'], latlon['lat'])
             location.point = wkt
             location.save()
+            if models.Location.objects.filter(point=wkt).count() > 1:
+                doubles.append(unicode(location) + \
+                                   u" - %d" % location.id)
             success.append(unicode(location) + u" (%d)" % location.id)
         self.stdout.write('\n\n')
         for items, lbl in (
                 (success, "lieu(x) geolocalise(s)\n"),
                 (many_responses, "requete(s) avec trop de reponses\n"),
                 (no_response, "requete(s) sans reponse\n"),
-                (connection_failed, "connexion(s) echouee(s)\n"),):
+                (connection_failed, "connexion(s) echouee(s)\n"),
+                (doubles, "doublons\n"),):
             self.stdout.write(" * %d %s" % (len(items), lbl))
             with open(LOG_FILE_NAME, 'a+') as log_file:
                 log_file.write(lbl)

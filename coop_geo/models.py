@@ -50,7 +50,10 @@ class Location(models.Model):
         if extra:
             lbl = u"%s (%s)" % (lbl, u", ".join(extra))
         return lbl
-
+    def has_point(self):
+        return self.point != None
+    has_point.boolean = True    
+    has_point.short_description = _(u'GPS')
     def save(self, *args, **kwargs):
         # if not self.point and not self.area:
         #     raise ValidationError(_(u"You must at least set a point or choose "
