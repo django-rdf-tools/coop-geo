@@ -6,7 +6,7 @@ from django.utils import simplejson as json
 from django.core import serializers
 from django.views.generic.list import BaseListView
 
-from models import Location
+from models import Location, Area
 
 class JSONResponseMixin(object):
     def render_to_response(self, context):
@@ -23,6 +23,12 @@ class JSONResponseMixin(object):
                                              ensure_ascii=False)
         return response
 
+class SimpleResponseMixin(object):
+    def render_to_response(self, context):
+        content = "\n".join(('%s|%s' % (unicode(item), item.pk)
+                    for item in context['object_list']))
+        return http.HttpResponse(content)
+
 class JSONLocationView(JSONResponseMixin, BaseListView):
     model = Location
     def get_queryset(self):
@@ -32,5 +38,32 @@ class JSONLocationView(JSONResponseMixin, BaseListView):
         query = query.filter(city__icontains=city)
         if address:
             query = query.filter(adr1__icontains=address)
+        return query
+
+class SimpleAreaView(SimpleResponseMixin, BaseListView):
+    model = Area
+    def get_queryset(self):
+        query = super(SimpleAreaView, self).get_queryset()
+        get = self.request.GET
+        if not get:
+            return []
+        area_type = get.get('area_type')
+        q = get.get('q')
+        query = query.filter(label__icontains=q,
+                             area_type__pk=area_type)
+        return query
+
+class JSONAreaView(JSONResponseMixin, BaseListView):
+    model = Area
+    def get_queryset(self):
+        query = super(JSONAreaView, self).get_queryset()
+        get = self.request.GET
+        if not get:
+            return []
+        pk = get.get('id')
+        if pk:
+            query = [query.get(pk=pk)]
+        else:
+            query = []
         return query
 

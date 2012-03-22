@@ -249,17 +249,18 @@ def area_post_save(sender, **kwargs):
 post_save.connect(area_post_save, sender=Area)
 
 class AreaLink(models.Model):
-    location = models.ForeignKey(Area,null=True,blank=True, verbose_name=_(u'location'))#TODO : location ?
+    location = models.ForeignKey(Area, null=True, blank=True,
+                      verbose_name=_(u'location'))#TODO : location ?
     # things which are in an area
-    content_type = models.ForeignKey(ContentType,blank=True,null=True)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     def __unicode__(self):
         return unicode(self.content_object) + _(u" has area : ") + \
                unicode(self.location)
     class Meta:
-        verbose_name = _(u'Linked area')   
-        verbose_name_plural = _(u'Linked areas')             
+        verbose_name = _(u'Linked area')
+        verbose_name_plural = _(u'Linked areas')
 
 class AreaRelations(models.Model):
     """

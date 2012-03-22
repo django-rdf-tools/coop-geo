@@ -1,0 +1,100 @@
+{% load i18n %}
+{% load mkrange %}
+{% load varformat %}
+<style type="text/css">
+    #{{ attrs.id|varformat }}_map { width: {{ map_width }}px; height: {{ map_height }}px; border:1px solid #AAA}
+    #{{ attrs.id|varformat }}_map .aligned label { float: inherit; }
+    #{{ attrs.id|varformat }}_span_control, #{{ attrs.id|varformat }}_span_map { margin-right:1em;position: relative; vertical-align: top; float: left; }
+    #{{ attrs.id|varformat }}_span_control {width:400px; height:{{map_height}}px;}
+    #{{ attrs.id|varformat }}_area {display:None;}
+    {% if not display_wkt %}#{{ attrs.id|varformat }} { display: none; }{% endif %}
+</style>
+<div id='editing'></div>
+<span id="{{ attrs.id|varformat }}_span_control">
+    <div id='{{ attrs.id|varformat }}_inputs'>
+        <fieldset class='map-controls'>
+        <legend>{% trans "Select new area" %}</legend>
+        <div id='{{ attrs.id|varformat }}_areatype' class='required'>
+            <label>{% trans "Area type"%}</label>
+            <select id='{{ attrs.id|varformat }}_areatype_input'>
+                <option value=''>--</option>
+                {% for typ in area_types %}<option value='{{typ.pk}}'>{{typ}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id='{{ attrs.id|varformat }}_area' class='required'>
+            <label>{% trans "Area"%}</label>
+            <input type='text' name='{{ attrs.id|varformat }}_area_input' id='{{ attrs.id|varformat }}_area_input' />
+        </div>
+        </fieldset>
+    </div>
+</span>
+<script type="text/javascript">
+    (function($){
+        $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
+            var areatype = $(this).val();
+            if (areatype){
+                $('#{{ attrs.id|varformat }}_area').show();
+                $('#{{ attrs.id|varformat }}_area_input').autocomplete(
+                        '/area/simple/', {
+                        extraParams: {
+                          'area_type': areatype
+                        }, max: 100, scrollHeight: 400,
+                      }).result(function(event, data, formatted) {
+                          if (data) {
+                              $('#{{ attrs.id }}').val(data[1]);
+                              $.ajax({
+                                  url: '/area/json/',
+                                  data: {'id':data[1]},
+                                  success: function(data) {
+                                        var wkt = data[0]['fields']['polygon'];
+                                        var feat = OpenLayers.Util.properFeatures(
+                                            {{ module }}.read_wkt(wkt),
+                                            {{ module }}.options.geom_type);
+                                        {% if map_srid != '4326' %}
+                                        feat = new OpenLayers.Feature.Vector(
+                                                    feat.geometry.transform(
+                                                              new OpenLayers.Projection('EPSG:4326'),
+                                                              new OpenLayers.Projection('EPSG:{{map_srid}}')));
+                                        {% endif %}
+                                        {{ module }}.deleteFeatures();
+                                        {{ module }}.layers.vector.addFeatures([feat]);
+                                        {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
+                                  }
+                              })
+                          }
+                      }).keyup(function(event){
+                          if (event.keyCode == 27) {
+                              reset();
+                          };
+                      });
+            } else {
+                $('#{{ attrs.id|varformat }}_area').hide();
+            }
+        })
+    })(django.jQuery);
+</script>
+<span id="{{ attrs.id|varformat }}_span_map">
+    <div id="{{ attrs.id|varformat }}_map"></div>
+    <input type='hidden' name='{{ attrs.id }}' id='{{ attrs.id }}' value='{{value_pk}}'/>
+</span>
+<script type="text/javascript">
+    {% block map_options %}var map_options = {};{% endblock %}
+    {% block options %}var options = {
+        geom_type: OpenLayers.Geometry.{{ geom_type }},
+        is_collection: {{ is_collection|yesno:"true,false" }},
+        is_linestring: {{ is_linestring|yesno:"true,false" }},
+        is_point: {{ is_point|yesno:"true,false" }},
+        is_polygon: {{ is_polygon|yesno:"true,false" }},
+        id: '{{ attrs.id|varformat }}',
+        id: '{{ attrs.id|varformat }}_map',
+        map_id: '{{ attrs.id|varformat }}_map',
+        map_options: map_options,
+        map_srid: {{ map_srid }},
+        name: '{{ name }}'{% if point_zoom %},
+        point_zoom: {{point_zoom}}{% endif %}
+    };{% endblock %}
+    var {{ module }} = new MapWidget(options);
+    {{module}}.panel.destroy();
+    {{module}}.map.getControlsByClass('OpenLayers.Control.DrawFeature')[0].destroy();
+</script>

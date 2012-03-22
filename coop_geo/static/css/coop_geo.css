@@ -1,0 +1,14 @@
+/**/
+fieldset.map-controls{
+    padding:1.5em;
+    border:1px solid #ccc;
+}
+
+fieldset.map-controls legend{
+    font-size:1.2em;
+}
+
+fieldset.map-controls label{
+    width:100px;
+    display:inline-table;
+}
