@@ -88,14 +88,18 @@ class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     map_width = 400
     areas = Area.get_all()
 
+from django.template.context import Context
+
+
 class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_choose_inline_area.html'
-    map_width = 400
+    map_width = 500
     point_zoom = 18
     class Media:
         css = {'all':['css/coop_geo.css']}
 
     def get_context(self, name, value, attrs=None, extra_context={}):
+        print name, value, attrs, extra_context
         # Defaulting the WKT value
         wkt, location = '', None
         if value:
@@ -117,5 +121,5 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
         context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
         context['LANGUAGE_BIDI'] = translation.get_language_bidi()
         context['area_types'] = AreaType.objects.all()
-        context['available_locations'] = AreaType.objects.all()
+        context['available_locations'] = Location.objects.all()
         return context
