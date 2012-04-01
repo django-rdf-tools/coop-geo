@@ -7,9 +7,10 @@
     #{{ attrs.id|varformat }}_span_control, #{{ attrs.id|varformat }}_span_map { margin-right:1em;position: relative; vertical-align: top; float: left; }
     #{{ attrs.id|varformat }}_span_control {width:400px; height:{{map_height}}px;}
     #{{ attrs.id|varformat }}_area {display:None;}
+    #{{ attrs.id|varformat }}_locations {display:None;}
     {% if not display_wkt %}#{{ attrs.id|varformat }} { display: none; }{% endif %}
 </style>
-<div id='editing'></div>
+<div class='editing'></div>
 <span id="{{ attrs.id|varformat }}_span_control">
     <div id='{{ attrs.id|varformat }}_inputs'>
         <fieldset class='map-controls'>
@@ -20,11 +21,77 @@
                 <option value=''>--</option>
                 {% for typ in area_types %}<option value='{{typ.pk}}'>{{typ}}</option>
                 {% endfor %}
+                <option value='radius'>{% trans "Radius" %}</option>
             </select>
         </div>
         <div id='{{ attrs.id|varformat }}_area' class='required'>
             <label>{% trans "Area"%}</label>
             <input type='text' name='{{ attrs.id|varformat }}_area_input' id='{{ attrs.id|varformat }}_area_input' />
+        </div>
+        <div id='{{ attrs.id|varformat }}_locations' class='required'>
+            <label>{% trans "Center"%}</label>
+            {% if not available_locations %}
+                <p>{% trans "Define at least a location before defining a radius of action." %}</p>
+            {% else %}
+                <ul>
+                    <li><input type='radio' name='{{ attrs.id|varformat }}_location' value='2'/> </li>
+                {% for available_location in available_locations %}
+                    <li><input type='radio' name='{{ attrs.id|varformat }}_location' value='{{available_location.pk}}'/> {{available_location}}</li>
+                {% endfor %}</ul>
+<script type='text/javascript'>
+    var {{attrs.id|varformat}}_locations = new Array();
+    var {{attrs.id|varformat}}_location_ids = new Array();
+    {%for location in available_locations%}{{attrs.id|varformat}}_locations[{{forloop.counter0}}]="{{location.point.wkt}}";
+    {{attrs.id|varformat}}_location_ids[{{forloop.counter0}}]="{{location.pk}}";
+    {% endfor %}
+
+    (function($){
+        $("input[name='{{attrs.id|varformat }}_location']").change(function(){
+            /*$('#{{ attrs.id|varformat }}_locations').hide();
+            $('#{{ attrs.id|varformat }}_area').hide();*/
+            console.log("1");
+            var areatype = $(this).val();
+            console.log("2");
+            var location_id = $("input[name='{{attrs.id|varformat }}_location']:checked").val();
+            console.log("3");
+            var location_point = {{attrs.id|varformat}}_locations[{{attrs.id|varformat}}_location_ids.indexOf(location_id)];
+/*alert(location_point);          */
+        var circle = new OpenLayers.Geometry.Polygon.createRegularPolygon(
+                new OpenLayers.Geometry.Point(1,6183000), 5000, 60, 0);
+        feat = new OpenLayers.Feature.Vector(circle);
+/*
+        new OpenLayers.Geometry.LinearRing(site_points);
+        var wkt = data[0]['fields']['polygon'];
+        var feat = OpenLayers.Util.properFeatures(
+            {{ module }}.read_wkt(wkt),
+            {{ module }}.options.geom_type);
+        {% if map_srid != '4326' %}
+        feat = new OpenLayers.Feature.Vector(
+                    feat.geometry.transform(
+                              new OpenLayers.Projection('EPSG:4326'),
+                              new OpenLayers.Projection('EPSG:{{map_srid}}')));
+        {% endif %}*/
+        {{ module }}.deleteFeatures();
+        {{ module }}.layers.vector.addFeatures([feat]);
+        {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
+
+  {{module}}_controls["modify"].activate();
+  {{module}}_controls.modify.mode = OpenLayers.Control.ModifyFeature.ROTATE;
+
+  {{module}}_controls.modify.mode |= OpenLayers.Control.ModifyFeature.RESIZE;
+  /*var keepAspectRatio = document.getElementById("keepAspectRatio").checked;
+  if (keepAspectRatio) {*/
+      {{module}}_controls.modify.mode &= ~OpenLayers.Control.ModifyFeature.RESHAPE;
+        {{module}}_controls["modify"].selectControl.select({{module}}.layers.vector.features[0]);
+        /*{{module}}_controls["select"].activate();
+        {{module}}_controls["select"].select({{module}}.layers.vector.features[0]);
+*/
+
+       /* });*/
+});
+    })(django.jQuery);
+</script>
+            {% endif %}
         </div>
         </fieldset>
     </div>
@@ -32,8 +99,12 @@
 <script type="text/javascript">
     (function($){
         $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
+            $('#{{ attrs.id|varformat }}_locations').hide();
+            $('#{{ attrs.id|varformat }}_area').hide();
             var areatype = $(this).val();
-            if (areatype){
+            if (areatype == 'radius'){
+                $('#{{ attrs.id|varformat }}_locations').show();
+            }else if (areatype){
                 $('#{{ attrs.id|varformat }}_area').show();
                 $('#{{ attrs.id|varformat }}_area_input').autocomplete(
                         '/area/simple/', {
@@ -68,17 +139,39 @@
                               reset();
                           };
                       });
-            } else {
-                $('#{{ attrs.id|varformat }}_area').hide();
             }
         })
     })(django.jQuery);
 </script>
 <span id="{{ attrs.id|varformat }}_span_map">
-    <div id="{{ attrs.id|varformat }}_map"></div>
+    <div id="{{ attrs.id|varformat }}_map" class='openlayers_map'></div>
     <input type='hidden' name='{{ attrs.id }}' id='{{ attrs.id }}' value='{{value_pk}}'/>
 </span>
 <script type="text/javascript">
+(function($){
+
+/*
+$('.openlayers_map').each(function(){
+    var map = jQuery(this).data('openlayers');
+        console.log(jQuery(this).data());
+    if (map){
+        map.updateSize();
+        console.log('Reinit doneee');
+    }
+});
+    for (var idx=0;idx<maps.length;idx++){
+        maps[idx].updateSize();
+        maps[idx].baseLayer.mapObject.checkResize();
+    maps[idx].baseLayer.mapObject.setCenter(new GLatLng(map.getCenter().lat,map.getCenter().lon));
+        console.log('Reinit done');
+    }
+*/
+    var contener = $('#{{ attrs.id|varformat }}_span_map').parent().parent();
+    is_hidden = contener.is(':hidden');
+    if(is_hidden){
+        /* display is necessary to correctly initialise openlayers */
+contener.show();
+    }
     {% block map_options %}var map_options = {};{% endblock %}
     {% block options %}var options = {
         geom_type: OpenLayers.Geometry.{{ geom_type }},
@@ -94,7 +187,29 @@
         name: '{{ name }}'{% if point_zoom %},
         point_zoom: {{point_zoom}}{% endif %}
     };{% endblock %}
-    var {{ module }} = new MapWidget(options);
+    {{ module }} = new MapWidget(options);
     {{module}}.panel.destroy();
     {{module}}.map.getControlsByClass('OpenLayers.Control.DrawFeature')[0].destroy();
+    function featureModified(event){
+      wkt_parser = new OpenLayers.Format.WKT();
+      console.log(wkt_parser.write({{module}}.layers.vector.features[0]));
+    }
+    {{module}}.layers.vector.events.on({
+      featuremodified: featureModified,
+      featuresadded: featureModified
+    });
+
+    {{module}}_controls = {
+      modify: new OpenLayers.Control.ModifyFeature({{module}}.layers.vector),
+    };
+
+    for (var key in {{module}}_controls) {
+      {{module}}.map.addControl({{module}}_controls[key]);
+    }
+
+    if(is_hidden){
+        contener.hide();
+        /*contener.addClass('empty-form');*/
+    }
+})(django.jQuery);
 </script>
