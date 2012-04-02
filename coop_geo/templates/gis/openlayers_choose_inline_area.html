@@ -10,6 +10,8 @@
     #{{ attrs.id|varformat }}_locations {display:None;}
     {% if not display_wkt %}#{{ attrs.id|varformat }} { display: none; }{% endif %}
 </style>
+<input type='hidden' name='{{attrs.id}}_area_pk' id='{{attrs.id}}_area_pk' value=''/>
+<input type='hidden' name='{{attrs.id}}_area_wkt' id='{{attrs.id}}_area_wkt' value=''/>
 <div class='editing'></div>
 <span id="{{ attrs.id|varformat }}_span_control">
     <div id='{{ attrs.id|varformat }}_inputs'>
@@ -35,7 +37,7 @@
             {% else %}
                 <ul>
                 {% for available_location in available_locations %}
-                    <li><input type='radio' name='{{ attrs.id|varformat }}_location' value='{{available_location.pk}}'/> {{available_location}}</li>
+                    <li><input type='radio' name='{{ attrs.id }}_location' value='{{available_location.pk}}'/> {{available_location}}</li>
                 {% endfor %}</ul>
 <script type='text/javascript'>
     /* manage radius */
@@ -46,10 +48,10 @@
     {% endfor %}
 
     (function($){
-        $("input[name='{{attrs.id|varformat }}_location']").change(function(){
+        $("input[name='{{attrs.id}}_location']").change(function(){
 
         var areatype = $(this).val();
-        var location_id = $("input[name='{{attrs.id|varformat }}_location']:checked").val();
+        var location_id = $("input[name='{{attrs.id}}_location']:checked").val();
         var location_point = {{attrs.id|varformat}}_locations[{{attrs.id|varformat}}_location_ids.indexOf(location_id)];
         var center = OpenLayers.Geometry.fromWKT(location_point).transform(
                               new OpenLayers.Projection('EPSG:4326'),
@@ -61,6 +63,9 @@
         {{ module }}.layers.vector.addFeatures([feat]);
         {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
         {{ module }}.map.zoomOut(1);
+        var wkt_parser = new OpenLayers.Format.WKT();
+        $("#{{attrs.id}}_area_wkt").val('SRID={{map_srid}};'+
+                                        wkt_parser.write(feat));
 
         {{module}}_controls["modify"].activate();
         {{module}}_controls.modify.mode = OpenLayers.Control.ModifyFeature.ROTATE;
@@ -77,8 +82,25 @@
     </div>
 </span>
 <script type="text/javascript">
+
+
     /* actions after first selection, autocomplete and access to radius */
     (function($){
+        function load_from_wkt(wkt){
+            var feat = OpenLayers.Util.properFeatures(
+                {{ module }}.read_wkt(wkt),
+                {{ module }}.options.geom_type);
+            {% if map_srid != '4326' %}
+            feat = new OpenLayers.Feature.Vector(
+                        feat.geometry.transform(
+                                  new OpenLayers.Projection('EPSG:4326'),
+                                  new OpenLayers.Projection('EPSG:{{map_srid}}')));
+            {% endif %}
+            {{ module }}.deleteFeatures();
+            {{ module }}.layers.vector.addFeatures([feat]);
+            {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
+        }
+        {% if wkt %}load_from_wkt({{wkt}});{% endif %}
         $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
             $('#{{ attrs.id|varformat }}_locations').hide();
             $('#{{ attrs.id|varformat }}_area').hide();
@@ -100,18 +122,8 @@
                                   data: {'id':data[1]},
                                   success: function(data) {
                                         var wkt = data[0]['fields']['polygon'];
-                                        var feat = OpenLayers.Util.properFeatures(
-                                            {{ module }}.read_wkt(wkt),
-                                            {{ module }}.options.geom_type);
-                                        {% if map_srid != '4326' %}
-                                        feat = new OpenLayers.Feature.Vector(
-                                                    feat.geometry.transform(
-                                                              new OpenLayers.Projection('EPSG:4326'),
-                                                              new OpenLayers.Projection('EPSG:{{map_srid}}')));
-                                        {% endif %}
-                                        {{ module }}.deleteFeatures();
-                                        {{ module }}.layers.vector.addFeatures([feat]);
-                                        {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
+                                        $("#{{attrs.id}}_area_pk").val(data[0]['pk']);
+                                        load_from_wkt(wkt);
                                   }
                               })
                           }
@@ -168,11 +180,12 @@ $('.openlayers_map').each(function(){
     {{module}}.panel.destroy();
     {{module}}.map.getControlsByClass('OpenLayers.Control.DrawFeature')[0].destroy();
     function featureModified(event){
-        var wkt_parser = new OpenLayers.Format.WKT();
         var current_feature = {{module}}.layers.vector.features[0];
-        console.log(wkt_parser.write(current_feature));
         {{ module }}.map.zoomToExtent(current_feature.geometry.getBounds());
         {{ module }}.map.zoomOut(1);
+        var wkt_parser = new OpenLayers.Format.WKT();
+        $("#{{attrs.id}}_area_wkt").val('SRID={{map_srid}};' + 
+                                        wkt_parser.write(current_feature));
     }
     {{module}}.layers.vector.events.on({
         featuremodified: featureModified,

@@ -44,3 +44,4 @@ class AreaInlineForm(forms.ModelForm):
         widgets = {
             'location': widgets.ChooseAreaWidget(),
         }
+
