@@ -88,9 +88,6 @@ class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     map_width = 400
     areas = Area.get_all()
 
-from django.template.context import Context
-
-
 class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_choose_inline_area.html'
     map_width = 500
