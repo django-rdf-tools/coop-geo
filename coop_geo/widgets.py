@@ -101,7 +101,6 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     def get_context(self, name, value, attrs=None, extra_context={}):
         # Defaulting the WKT value
         wkt, location = '', None
-        print value
         if value:
             try:
                 location = Area.objects.get(pk=int(value))
@@ -159,7 +158,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
             else:
                 area, created = Area.objects.get_or_create(**values)
             return area.pk
-        if area_pk and not area_wkt:
+        elif area_pk:
             return area_pk
         return None
 

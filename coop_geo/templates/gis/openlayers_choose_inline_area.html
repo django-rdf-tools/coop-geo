@@ -10,13 +10,16 @@
     #{{ attrs.id|varformat }}_locations {display:None;}
     {% if not display_wkt %}#{{ attrs.id|varformat }} { display: none; }{% endif %}
 </style>
-<input type='hidden' name='{{attrs.id}}_area_pk' id='{{attrs.id}}_area_pk' value=''/>
+<input type='hidden' name='{{attrs.id}}_area_pk' id='{{attrs.id}}_area_pk' value='{{value_pk}}'/>
 <input type='hidden' name='{{attrs.id}}_area_wkt' id='{{attrs.id}}_area_wkt' value=''/>
 <div class='editing'></div>
+{% if location %}<div class='current_location'>
+    <p><label class='required'>{% trans "Current area:" %}</label> {{location}}</p>
+</div>{% endif %}
 <span id="{{ attrs.id|varformat }}_span_control">
     <div id='{{ attrs.id|varformat }}_inputs'>
         <fieldset class='map-controls'>
-        <legend>{% trans "Select new area" %}</legend>
+        <legend>{% if location %}{% trans "Change the area" %}{%else%}{% trans "Select new area" %}{%endif%}</legend>
         <div id='{{ attrs.id|varformat }}_areatype' class='required'>
             <label>{% trans "Area type"%}</label>
             <select id='{{ attrs.id|varformat }}_areatype_input'>
@@ -84,56 +87,7 @@
 <script type="text/javascript">
 
 
-    /* actions after first selection, autocomplete and access to radius */
     (function($){
-        function load_from_wkt(wkt){
-            var feat = OpenLayers.Util.properFeatures(
-                {{ module }}.read_wkt(wkt),
-                {{ module }}.options.geom_type);
-            {% if map_srid != '4326' %}
-            feat = new OpenLayers.Feature.Vector(
-                        feat.geometry.transform(
-                                  new OpenLayers.Projection('EPSG:4326'),
-                                  new OpenLayers.Projection('EPSG:{{map_srid}}')));
-            {% endif %}
-            {{ module }}.deleteFeatures();
-            {{ module }}.layers.vector.addFeatures([feat]);
-            {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
-        }
-        {% if wkt %}load_from_wkt({{wkt}});{% endif %}
-        $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
-            $('#{{ attrs.id|varformat }}_locations').hide();
-            $('#{{ attrs.id|varformat }}_area').hide();
-            var areatype = $(this).val();
-            if (areatype == 'radius'){
-                $('#{{ attrs.id|varformat }}_locations').show();
-            }else if (areatype){
-                $('#{{ attrs.id|varformat }}_area').show();
-                $('#{{ attrs.id|varformat }}_area_input').autocomplete(
-                        '/area/simple/', {
-                        extraParams: {
-                          'area_type': areatype
-                        }, max: 100, scrollHeight: 400,
-                      }).result(function(event, data, formatted) {
-                          if (data) {
-                              $('#{{ attrs.id }}').val(data[1]);
-                              $.ajax({
-                                  url: '/area/json/',
-                                  data: {'id':data[1]},
-                                  success: function(data) {
-                                        var wkt = data[0]['fields']['polygon'];
-                                        $("#{{attrs.id}}_area_pk").val(data[0]['pk']);
-                                        load_from_wkt(wkt);
-                                  }
-                              })
-                          }
-                      }).keyup(function(event){
-                          if (event.keyCode == 27) {
-                              reset();
-                          };
-                      });
-            }
-        })
     })(django.jQuery);
 </script>
 <span id="{{ attrs.id|varformat }}_span_map">
@@ -143,6 +97,54 @@
 <script type="text/javascript">
 /* manage the map: initialize it and manage controllers */
 (function($){
+    function load_from_wkt(wkt){
+        var feat = OpenLayers.Util.properFeatures(
+            {{ module }}.read_wkt(wkt),
+            {{ module }}.options.geom_type);
+        {% if map_srid != '4326' %}
+        feat = new OpenLayers.Feature.Vector(
+                    feat.geometry.transform(
+                              new OpenLayers.Projection('EPSG:4326'),
+                              new OpenLayers.Projection('EPSG:{{map_srid}}')));
+        {% endif %}
+        {{ module }}.deleteFeatures();
+        {{ module }}.layers.vector.addFeatures([feat]);
+        {{ module }}.map.zoomToExtent(feat.geometry.getBounds());
+    }
+    /* actions after first selection, autocomplete and access to radius */
+    $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
+        $('#{{ attrs.id|varformat }}_locations').hide();
+        $('#{{ attrs.id|varformat }}_area').hide();
+        var areatype = $(this).val();
+        if (areatype == 'radius'){
+            $('#{{ attrs.id|varformat }}_locations').show();
+        }else if (areatype){
+            $('#{{ attrs.id|varformat }}_area').show();
+            $('#{{ attrs.id|varformat }}_area_input').autocomplete(
+                    '/area/simple/', {
+                    extraParams: {
+                      'area_type': areatype
+                    }, max: 100, scrollHeight: 400,
+                  }).result(function(event, data, formatted) {
+                      if (data) {
+                          $('#{{ attrs.id }}').val(data[1]);
+                          $.ajax({
+                              url: '/area/json/',
+                              data: {'id':data[1]},
+                              success: function(data) {
+                                    var wkt = data[0]['fields']['polygon'];
+                                    $("#{{attrs.id}}_area_pk").val(data[0]['pk']);
+                                    load_from_wkt(wkt);
+                              }
+                          })
+                      }
+                  }).keyup(function(event){
+                      if (event.keyCode == 27) {
+                          reset();
+                      };
+                  });
+        }
+    })
 
 /*
 $('.openlayers_map').each(function(){
@@ -204,5 +206,6 @@ $('.openlayers_map').each(function(){
         contener.hide();
         /*contener.addClass('empty-form');*/
     }
+    {% if wkt %}load_from_wkt("{{wkt}}");{% endif %}
 })(django.jQuery);
 </script>
