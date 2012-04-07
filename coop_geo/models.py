@@ -31,15 +31,16 @@ class Location(models.Model):
                               null=True, editable=False)
     objects = models.GeoManager()
 
-    created = exfields.CreationDateTimeField(_(u'created'),null=True)
-    modified = exfields.ModificationDateTimeField(_(u'modified'),null=True)
-    uuid = exfields.UUIDField(null=True) #nécessaire pour URI
+    created = exfields.CreationDateTimeField(_(u'created'), null=True)
+    modified = exfields.ModificationDateTimeField(_(u'modified'), null=True)
+    uuid = exfields.UUIDField(null=True)  # nécessaire pour URI
 
     #related = RelatedObjectsDescriptor()
 
     class Meta:
         verbose_name = _(u'Location')
         verbose_name_plural = _(u'Locations')
+
     def __unicode__(self):
         lbl = self.label
         extra = []
@@ -50,10 +51,12 @@ class Location(models.Model):
         if extra:
             lbl = u"%s (%s)" % (lbl, u", ".join(extra))
         return lbl
+
     def has_point(self):
         return self.point != None
     has_point.boolean = True    
     has_point.short_description = _(u'GPS')
+
     def save(self, *args, **kwargs):
         # if not self.point and not self.area:
         #     raise ValidationError(_(u"You must at least set a point or choose "
@@ -77,6 +80,7 @@ class Location(models.Model):
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
+
 class Located(models.Model):
     location = models.ForeignKey(Location, null=True, blank=True,
                                  verbose_name=_(u"location"))
@@ -85,7 +89,7 @@ class Located(models.Model):
     location_type = models.CharField(blank=True, max_length=100,
                                  verbose_name=_(u"type of location"))
     # things which are located
-    content_type = models.ForeignKey(ContentType,blank=True,null=True)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
@@ -98,6 +102,7 @@ class Located(models.Model):
 
 AREA_DEFAULT_LOCATION_LBL = _(u"%s (center)")
 
+
 class AreaType(models.Model):
     """Area type"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
@@ -105,6 +110,7 @@ class AreaType(models.Model):
 
     def __unicode__(self):
         return self.label
+
 
 class Area(models.Model):
     """Areas: towns, regions, ... mainly set by import"""
@@ -124,9 +130,11 @@ class Area(models.Model):
     update_auto = models.BooleanField(verbose_name=_(u"update automatically?"),
                                       default=False)
     objects = models.GeoManager()
+
     class Meta:
         verbose_name = _(u'Area')
         verbose_name_plural = _(u'Areas')
+
     def __unicode__(self):
         return self.label
 
@@ -237,13 +245,14 @@ class Area(models.Model):
                 sorted_areas += childs
         return sorted_areas
 
+
 def area_post_save(sender, **kwargs):
     if not kwargs['instance']:
         return
     area = kwargs['instance']
     if not area.default_location:
-        datas = {'point':area.polygon.centroid,
-                 'label':AREA_DEFAULT_LOCATION_LBL % area.label}
+        datas = {'point': area.polygon.centroid,
+                 'label': AREA_DEFAULT_LOCATION_LBL % area.label}
         area.default_location = Location.objects.create(**datas)
         area.save()
     if area.parent_rels.count():
@@ -251,18 +260,22 @@ def area_post_save(sender, **kwargs):
             parentrel.parent.update_from_childs()
 post_save.connect(area_post_save, sender=Area)
 
+
 class AreaLink(models.Model):
-    location = models.ForeignKey(Area,null=True,blank=True, verbose_name=_(u'location'))#TODO : location ?
+    location = models.ForeignKey(Area, null=True, blank=True, verbose_name=_(u'location'))
     # things which are in an area
-    content_type = models.ForeignKey(ContentType,blank=True,null=True)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     def __unicode__(self):
         return unicode(self.content_object) + _(u" has area : ") + \
                unicode(self.location)
+
     class Meta:
         verbose_name = _(u'Linked area')   
         verbose_name_plural = _(u'Linked areas')             
+
 
 class AreaRelations(models.Model):
     """
@@ -272,6 +285,7 @@ class AreaRelations(models.Model):
                                related_name='child_rels')
     child = models.ForeignKey(Area, verbose_name=_(u"included"),
                               related_name='parent_rels')
+
     class Meta:
         verbose_name = _(u"Area relation")
         verbose_name_plural = _(u"Area relations")
@@ -283,6 +297,7 @@ class AreaRelations(models.Model):
         if self.child == self.parent:
             raise ValidationError(_(u"Child and Parent have to be different."))
         return super(AreaRelations, self).save(*args, **kwargs)
+
 
 def arearel_post_save(sender, **kwargs):
     if not kwargs['instance']:
