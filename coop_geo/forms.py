@@ -37,3 +37,11 @@ class AreaForm(forms.ModelForm):
             'polygon': widgets.PolygonWidget(),
             'default_location': chosenwidgets.ChosenSelect()
         }
+
+class AreaInlineForm(forms.ModelForm):
+    class Meta:
+        fields = ('location',)
+        widgets = {
+            'location': widgets.ChooseAreaWidget(),
+        }
+

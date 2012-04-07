@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
+
 from django.conf import settings
+from django.contrib.gis.geos import GEOSGeometry
 from django.utils import translation
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ObjectDoesNotExist
 
+from coop.utils.autocomplete_admin import FkSearchInput
+
 import floppyforms.gis as ff_gis
 
-from models import Area, Location
+from models import Area, AreaType, AreaLink, Location
 
 class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_location.html'
@@ -85,3 +90,75 @@ class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm.html'
     map_width = 400
     areas = Area.get_all()
+
+class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
+    template_name = 'gis/osm_choose_inline_area.html'
+    map_width = 500
+    point_zoom = 18
+    class Media:
+        css = {'all':['css/coop_geo.css']}
+
+    def get_context(self, name, value, attrs=None, extra_context={}):
+        # Defaulting the WKT value
+        wkt, location = '', None
+        if value:
+            try:
+                location = Area.objects.get(pk=int(value))
+                wkt = location.polygon.wkt
+            except ObjectDoesNotExist:
+                pass
+        context = super(ChooseAreaWidget, self).get_context(name, wkt,
+                                                            attrs)
+        context['location'] = ""
+        context['value_pk'] = ""
+        if location:
+            context['location'] = unicode(location)
+            context['value_pk'] = location.pk
+        context['wkt'] = wkt
+        context['module'] = 'map_%s' % name.replace('-', '_')
+        context['name'] = name
+        context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
+        context['LANGUAGE_BIDI'] = translation.get_language_bidi()
+        context['area_types'] = AreaType.objects.all()
+        context['available_locations'] = Location.objects.all()
+        return context
+
+    def value_from_datadict(self, data, files, name):
+        area_pk = data.get('id_' + name +'_area_pk')
+        area_wkt = data.get('id_' + name +'_area_wkt')
+        area_location = data.get('id_' + name +'_location')
+        # not clean but no other simple way to implement it
+        if area_wkt and area_location:
+            # treatment of a circle
+            # it is a multi-polygon not a simple polygon: manualy fix it
+            r = re.compile('POLYGON')
+            area_wkt = r.sub('MULTIPOLYGON(', area_wkt) + ')'
+
+            area_type, created = AreaType.objects.get_or_create(
+                                        txt_idx='circle',
+                                        defaults={'label':"Circle"})
+            default_location = None
+            if area_location:
+                try:
+                    default_location = Location.objects.get(pk=area_location)
+                except:
+                    return
+            lbl = u"Rayon d'action - " + default_location.label
+            values = {'label':lbl[:150], 'default_location':default_location,
+                      'area_type':area_type, 'polygon':GEOSGeometry(area_wkt)}
+            area = None
+            if area_pk:
+                try:
+                    area = Area.objects.get(pk=area_pk)
+                except:
+                    return
+                for attr in values:
+                    setattr(area, attr, values[attr])
+                area.save()
+            else:
+                area, created = Area.objects.get_or_create(**values)
+            return area.pk
+        elif area_pk:
+            return area_pk
+        return None
+
