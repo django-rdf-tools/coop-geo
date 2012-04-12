@@ -38,10 +38,18 @@ class AreaForm(forms.ModelForm):
             'default_location': chosenwidgets.ChosenSelect()
         }
 
-class AreaInlineForm(forms.ModelForm):
+class AreaFormForInline(forms.ModelForm):
     class Meta:
+        model = models.Located
         fields = ('location',)
         widgets = {
             'location': widgets.ChooseAreaWidget(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(AreaFormForInline, self).__init__(*args, **kwargs)
+        associated_obj = self.fields['location']._associated_obj
+        if associated_obj:
+            self.fields['location'].widget = widgets.ChooseAreaWidget(
+                        available_locations=[loc.location
+                                    for loc in associated_obj.located.all()])

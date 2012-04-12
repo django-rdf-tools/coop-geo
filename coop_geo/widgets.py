@@ -98,6 +98,10 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     class Media:
         css = {'all':['css/coop_geo.css']}
 
+    def __init__(self, available_locations=None):
+        self.available_locations = available_locations
+        super(ChooseAreaWidget, self).__init__()
+
     def get_context(self, name, value, attrs=None, extra_context={}):
         # Defaulting the WKT value
         wkt, location = '', None
@@ -120,7 +124,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
         context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
         context['LANGUAGE_BIDI'] = translation.get_language_bidi()
         context['area_types'] = AreaType.objects.all()
-        context['available_locations'] = Location.objects.all()
+        context['available_locations'] = self.available_locations
         return context
 
     def value_from_datadict(self, data, files, name):
