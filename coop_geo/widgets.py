@@ -124,7 +124,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
         context['name'] = name
         context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
         context['LANGUAGE_BIDI'] = translation.get_language_bidi()
-        context['area_types'] = AreaType.objects.all()
+        context['area_types'] = AreaType.objects.exclude(txt_idx='circle').all()
         context['available_locations'] = self.available_locations
         return context
 

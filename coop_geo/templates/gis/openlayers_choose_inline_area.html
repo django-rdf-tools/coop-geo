@@ -15,11 +15,12 @@
 <input type='hidden' name='{{attrs.id}}_area_wkt' id='{{attrs.id}}_area_wkt' value=''/>
 <div class='editing'></div>
 {% if location %}<div class='current_location'>
-    <p><label class='required'>{% trans "Current area:" %}</label> {{location}}</p>
+    <p class='current-area'><label>{% trans "Current area:" %}</label> {{location}}</p>
 </div>{% endif %}
 <span id="{{ attrs.id|varformat }}_span_control">
     <div id='{{ attrs.id|varformat }}_inputs'>
-        <fieldset class='map-controls'>
+        {% if location %}<button onclick='$("#{{module}}-fieldset").removeClass("collapsed");$(this).hide();return false;'>{% trans "Change" %}</button>{% endif %}
+        <fieldset id='{{module}}-fieldset' class='map-controls{% if location%} collapsed{%endif%}'>
         <legend>{% if location %}{% trans "Change the area" %}{%else%}{% trans "Select new area" %}{%endif%}</legend>
         <div id='{{ attrs.id|varformat }}_areatype' class='required'>
             <label>{% trans "Area type"%}</label>
@@ -116,10 +117,13 @@
     $('#{{ attrs.id|varformat }}_areatype_input').change(function(){
         $('#{{ attrs.id|varformat }}_locations').hide();
         $('#{{ attrs.id|varformat }}_area').hide();
+        $("input[name='{{attrs.id}}_location']:checked").attr('checked', false);
+        $('#{{ attrs.id|varformat }}_area_input').val('');
         var areatype = $(this).val();
         if (areatype == 'radius'){
             $('#{{ attrs.id|varformat }}_locations').show();
         }else if (areatype){
+            {{module}}_controls["modify"].deactivate();
             $('#{{ attrs.id|varformat }}_area').show();
             $('#{{ attrs.id|varformat }}_area_input').autocomplete(
                     '/area/simple/', {
@@ -134,6 +138,7 @@
                               data: {'id':data[1]},
                               success: function(data) {
                                     var wkt = data[0]['fields']['polygon'];
+                                    $("#{{attrs.id}}_area_wkt").val('');
                                     $("#{{attrs.id}}_area_pk").val(data[0]['pk']);
                                     load_from_wkt(wkt);
                               }
@@ -192,7 +197,8 @@
     if(!is_hidden){
         init_geom_{{module}}();
     };
-    /* else {
+    /* //manage hidden maps
+     else {
         contener.parent().find('.add-row').click(
             function(){
                 init_geom_{{module}};
