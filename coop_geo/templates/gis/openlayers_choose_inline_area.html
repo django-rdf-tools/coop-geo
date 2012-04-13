@@ -9,6 +9,7 @@
     #{{ attrs.id|varformat }}_area {display:None;}
     #{{ attrs.id|varformat }}_locations {display:None;}
     {% if not display_wkt %}#{{ attrs.id|varformat }} { display: none; }{% endif %}
+    #{{parent_table_name}} .add-row{display:none;}
 </style>
 <input type='hidden' name='{{attrs.id}}_area_pk' id='{{attrs.id}}_area_pk' value='{{value_pk}}'/>
 <input type='hidden' name='{{attrs.id}}_area_wkt' id='{{attrs.id}}_area_wkt' value=''/>
@@ -146,66 +147,59 @@
         }
     })
 
-/*
-$('.openlayers_map').each(function(){
-    var map = jQuery(this).data('openlayers');
-        console.log(jQuery(this).data());
-    if (map){
-        map.updateSize();
-        console.log('Reinit doneee');
-    }
-});
-*/
+    function init_geom_{{module}}(){
+        {% block map_options %}var map_options = {};{% endblock %}
+        {% block options %}var options = {
+            geom_type: OpenLayers.Geometry.{{ geom_type }},
+            is_collection: {{ is_collection|yesno:"true,false" }},
+            is_linestring: {{ is_linestring|yesno:"true,false" }},
+            is_point: {{ is_point|yesno:"true,false" }},
+            is_polygon: {{ is_polygon|yesno:"true,false" }},
+            id: '{{ attrs.id|varformat }}',
+            id: '{{ attrs.id|varformat }}_map',
+            map_id: '{{ attrs.id|varformat }}_map',
+            map_options: map_options,
+            map_srid: {{ map_srid }},
+            name: '{{ name }}'{% if point_zoom %},
+            point_zoom: {{point_zoom}}{% endif %}
+        };{% endblock %}
+        {{ module }} = new MapWidget(options);
+        {{module}}.panel.destroy();
+        {{module}}.map.getControlsByClass('OpenLayers.Control.DrawFeature')[0].destroy();
+        function featureModified(event){
+            var current_feature = {{module}}.layers.vector.features[0];
+            {{ module }}.map.zoomToExtent(current_feature.geometry.getBounds());
+            {{ module }}.map.zoomOut(1);
+            var wkt_parser = new OpenLayers.Format.WKT();
+            $("#{{attrs.id}}_area_wkt").val('SRID={{map_srid}};' + 
+                                            wkt_parser.write(current_feature));
+        }
+        {{module}}.layers.vector.events.on({
+            featuremodified: featureModified,
+            featuresadded: featureModified
+        });
+
+        {{module}}_controls = {
+            modify: new OpenLayers.Control.ModifyFeature({{module}}.layers.vector),
+        };
+
+        for (var key in {{module}}_controls) {
+          {{module}}.map.addControl({{module}}_controls[key]);
+        }
+    };
     var contener = $('#{{ attrs.id|varformat }}_span_map').parent().parent();
     is_hidden = contener.is(':hidden');
-    /* to be corrected... */
-    if(is_hidden){
-        /* display is necessary to correctly initialise openlayers */
-        contener.show();
-    }
-    {% block map_options %}var map_options = {};{% endblock %}
-    {% block options %}var options = {
-        geom_type: OpenLayers.Geometry.{{ geom_type }},
-        is_collection: {{ is_collection|yesno:"true,false" }},
-        is_linestring: {{ is_linestring|yesno:"true,false" }},
-        is_point: {{ is_point|yesno:"true,false" }},
-        is_polygon: {{ is_polygon|yesno:"true,false" }},
-        id: '{{ attrs.id|varformat }}',
-        id: '{{ attrs.id|varformat }}_map',
-        map_id: '{{ attrs.id|varformat }}_map',
-        map_options: map_options,
-        map_srid: {{ map_srid }},
-        name: '{{ name }}'{% if point_zoom %},
-        point_zoom: {{point_zoom}}{% endif %}
-    };{% endblock %}
-    {{ module }} = new MapWidget(options);
-    {{module}}.panel.destroy();
-    {{module}}.map.getControlsByClass('OpenLayers.Control.DrawFeature')[0].destroy();
-    function featureModified(event){
-        var current_feature = {{module}}.layers.vector.features[0];
-        {{ module }}.map.zoomToExtent(current_feature.geometry.getBounds());
-        {{ module }}.map.zoomOut(1);
-        var wkt_parser = new OpenLayers.Format.WKT();
-        $("#{{attrs.id}}_area_wkt").val('SRID={{map_srid}};' + 
-                                        wkt_parser.write(current_feature));
-    }
-    {{module}}.layers.vector.events.on({
-        featuremodified: featureModified,
-        featuresadded: featureModified
-    });
-
-    {{module}}_controls = {
-        modify: new OpenLayers.Control.ModifyFeature({{module}}.layers.vector),
+    if(!is_hidden){
+        init_geom_{{module}}();
     };
-
-    for (var key in {{module}}_controls) {
-      {{module}}.map.addControl({{module}}_controls[key]);
-    }
-
-    if(is_hidden){
-        contener.hide();
-        /*contener.addClass('empty-form');*/
-    }
+    /* else {
+        contener.parent().find('.add-row').click(
+            function(){
+                init_geom_{{module}};
+                $('#{{ attrs.id|varformat }}_span_map').parent().parent().parent().find('.add-row').hide();
+            }
+        );
+    }*/
     {% if wkt %}load_from_wkt("{{wkt}}");{% endif %}
 })(django.jQuery);
 </script>
