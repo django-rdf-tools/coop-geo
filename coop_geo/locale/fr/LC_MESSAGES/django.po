@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: coop_geo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-16 22:38+0000\n"
-"PO-Revision-Date: 2012-02-13 10:24+0100\n"
+"POT-Creation-Date: 2012-04-19 16:19+0200\n"
+"PO-Revision-Date: 2012-04-19 16:21+0100\n"
 "Last-Translator: Dominique Guardiola <dguardiola@quinode.fr>\n"
 "Language-Team: Quinode <contact@quinode.fr>\n"
 "Language: \n"
@@ -19,23 +19,25 @@ msgstr ""
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: FRANCE\n"
 
-#: admin.py:18
+#: admin.py:27
 msgid "Included area"
 msgstr "zones inclue"
 
-#: admin.py:19
+#: admin.py:28
 msgid "Included areas"
 msgstr "zones inclues"
 
-#: admin.py:25
+#: admin.py:35
 msgid "Inside area"
 msgstr "zone englobante"
 
-#: admin.py:26
+#: admin.py:36
 msgid "Inside areas"
 msgstr "zones englobantes"
 
-#: models.py:16 models.py:105
+#: models.py:16
+#: models.py:108
+#: models.py:117
 msgid "label"
 msgstr "libellé"
 
@@ -75,7 +77,8 @@ msgstr "création"
 msgid "modified"
 msgstr "modification"
 
-#: models.py:41 templates/gis/openlayers_location.html:43
+#: models.py:41
+#: templates/gis/openlayers_location.html:43
 #: templates/gis/openlayers_point.html:43
 msgid "Location"
 msgstr "Lieu"
@@ -84,121 +87,104 @@ msgstr "Lieu"
 msgid "Locations"
 msgstr "Lieux"
 
-#: models.py:56
-msgid "You must at least set a point or choose an area."
-msgstr "Vous devez au moins définir un point ou sélectionner une zone."
+#: models.py:58
+msgid "GPS"
+msgstr ""
 
-#: models.py:78 models.py:249
+#: models.py:86
+#: models.py:266
 msgid "location"
 msgstr "lieu"
 
-#: models.py:79
+#: models.py:88
 msgid "main venue"
 msgstr "lieu principal"
 
-#: models.py:80
+#: models.py:90
 msgid "type of location"
 msgstr "type de lieu"
 
-#: models.py:89
+#: models.py:100
 msgid "Located item"
 msgstr "Géo-localisation"
 
-#: models.py:90
+#: models.py:101
 msgid "Located items"
 msgstr "Géo-localisations"
 
-#: models.py:94
+#: models.py:103
 #, python-format
 msgid "%s (center)"
 msgstr "%s (centre)"
 
-#: models.py:96
-msgid "town"
-msgstr "commune"
+#: models.py:109
+msgid "mnemonic"
+msgstr ""
 
-#: models.py:97 models.py:263
-msgid "departement"
-msgstr "département"
-
-#: models.py:98
-msgid "town group"
-msgstr "intercommunalité"
-
-#: models.py:99 models.py:262
-msgid "region"
-msgstr "région"
-
-#: models.py:100 models.py:261
-msgid "country"
-msgstr "pays"
-
-#: models.py:106
+#: models.py:118
 msgid "reference"
 msgstr "référence"
 
-#: models.py:108
-msgid "polygon"
-msgstr "polygone"
-
-#: models.py:111
+#: models.py:121
 msgid "default location"
 msgstr "lieu par défaut"
 
-#: models.py:113
+#: models.py:123
 msgid "related area"
 msgstr "zone liée"
 
-#: models.py:114 models.py:271
+#: models.py:124
 msgid "type"
 msgstr "type"
 
-#: models.py:118
+#: models.py:125
+msgid "polygon"
+msgstr "polygone"
+
+#: models.py:130
 msgid "update automatically?"
 msgstr "mise à jour automatique ?"
 
-#: models.py:122
+#: models.py:135
+#: templates/gis/openlayers_choose_inline_area.html:35
 msgid "Area"
 msgstr "Zone"
 
-#: models.py:123 templates/gis/openlayers_location.html:44
+#: models.py:136
+#: templates/gis/openlayers_location.html:44
 #: templates/gis/openlayers_point.html:44
 msgid "Areas"
 msgstr "Zones"
 
-#: models.py:255
+#: models.py:273
 msgid " has area : "
 msgstr " a pour zone :"
 
-#: models.py:258
+#: models.py:277
 msgid "Linked area"
 msgstr "Zone liée"
 
-#: models.py:259
+#: models.py:278
 msgid "Linked areas"
 msgstr "Zones liées"
 
-#: models.py:264
-msgid "towns grouping"
-msgstr "intercommunalité"
-
-#: models.py:273
+#: models.py:285
 msgid "inside"
 msgstr "englobe"
 
-#: models.py:275
+#: models.py:287
 msgid "included"
 msgstr "inclus"
 
-#: models.py:278
+#: models.py:291
 msgid "Area relation"
 msgstr "relation de zone"
 
-#: models.py:279
+#: models.py:292
 msgid "Area relations"
 msgstr "relationds de zone"
 
-#: models.py:286
+#: models.py:299
 msgid "Child and Parent have to be different."
 msgstr "Les zones parent et enfants doivent être différente."
 
@@ -238,6 +224,38 @@ msgstr "Cliquez sur le lieu choisi:"
 msgid "You must at least precise the town."
 msgstr "Vous devez au moins préciser une ville."
 
+#: templates/gis/openlayers_choose_inline_area.html:18
+msgid "Current area:"
+msgstr "Zone courante:"
+
+#: templates/gis/openlayers_choose_inline_area.html:22
+msgid "Change"
+msgstr "Modifier"
+
+#: templates/gis/openlayers_choose_inline_area.html:24
+msgid "Change the area"
+msgstr "Modifier la zone"
+
+#: templates/gis/openlayers_choose_inline_area.html:24
+msgid "Select new area"
+msgstr "Sélectionnez une nouvelle zone"
+
+#: templates/gis/openlayers_choose_inline_area.html:26
+msgid "Area type"
+msgstr "Type de zone"
+
+#: templates/gis/openlayers_choose_inline_area.html:31
+msgid "Radius"
+msgstr "Rayon"
+
+#: templates/gis/openlayers_choose_inline_area.html:39
+msgid "Center"
+msgstr "Centre"
+
+#: templates/gis/openlayers_choose_inline_area.html:41
+msgid "Define at least a location before defining a radius of action."
+msgstr "Définissez au moins une localisation pour pouvoir définir un rayon autour de celle-ci."
+
 #: templates/gis/openlayers_choose_location.html:57
 msgid "Current location:"
 msgstr "Lieu actuel:"
@@ -253,3 +271,24 @@ msgstr "Ajouter un autre lieu"
 #: templates/gis/openlayers_location.html:47
 msgid "Search by address"
 msgstr "Localiser l'adresse"
+
+#~ msgid "You must at least set a point or choose an area."
+#~ msgstr "Vous devez au moins définir un point ou sélectionner une zone."
+
+#~ msgid "town"
+#~ msgstr "commune"
+
+#~ msgid "departement"
+#~ msgstr "département"
+
+#~ msgid "town group"
+#~ msgstr "intercommunalité"
+
+#~ msgid "region"
+#~ msgstr "région"
+
+#~ msgid "country"
+#~ msgstr "pays"
+
+#~ msgid "towns grouping"
+#~ msgstr "intercommunalité"
