@@ -119,11 +119,12 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
             context['location'] = unicode(location)
             context['value_pk'] = location.pk
         context['wkt'] = wkt
+        context['parent_table_name'] = '-'.join(name.split('-')[:-2]+['group'])
         context['module'] = 'map_%s' % name.replace('-', '_')
         context['name'] = name
         context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
         context['LANGUAGE_BIDI'] = translation.get_language_bidi()
-        context['area_types'] = AreaType.objects.all()
+        context['area_types'] = AreaType.objects.exclude(txt_idx='circle').all()
         context['available_locations'] = self.available_locations
         return context
 
