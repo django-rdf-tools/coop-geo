@@ -122,7 +122,7 @@ class Area(models.Model):
     related_areas = models.ManyToManyField('Area',
             verbose_name=_(u"related area"), through='AreaRelations')
     area_type = models.ForeignKey(AreaType, verbose_name=_(u"type"))
-    polygon = models.MultiPolygonField(_(u"polygon"),
+    polygon = models.MultiPolygonField(_(u"polygon"), blank=True, null=True,
                                   srid=settings.COOP_GEO_EPSG_PROJECTION)
 
     # when set to true a "parent" area is automaticaly updated with the add
@@ -157,13 +157,16 @@ class Area(models.Model):
     def update_from_childs(self):
         if not self.update_auto or not self.child_rels.count():
             return
+
         geocollection = [childrel.child.polygon
                          for childrel in self.child_rels.all()]
-        self.polygon = geocollection[0]
+        polygon = geocollection[0]
         for polygon in geocollection[1:]:
-            self.polygon = self.polygon + polygon
+            polygon = polygon + polygon
         #TODO: simplify with unions
-        self.save()
+        if polygon != self.polygon:
+            self.polygon = polygon
+            self.save()
         return
 
     @property
@@ -250,11 +253,12 @@ def area_post_save(sender, **kwargs):
     if not kwargs['instance']:
         return
     area = kwargs['instance']
-    if not area.default_location:
+    if not area.default_location and area.polygon:
         datas = {'point': area.polygon.centroid,
                  'label': AREA_DEFAULT_LOCATION_LBL % area.label}
         area.default_location = Location.objects.create(**datas)
         area.save()
+    area.update_from_childs()
     if area.parent_rels.count():
         for parentrel in area.parent_rels.all():
             parentrel.parent.update_from_childs()

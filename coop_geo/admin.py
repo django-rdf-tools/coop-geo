@@ -27,21 +27,21 @@ class AreaParentRelInline(admin.TabularInline):
     verbose_name = _(u"Included area")
     verbose_name_plural = _(u"Included areas")
     extra = 1
-    fk_name = 'parent'
+    fk_name = 'child'
 
 
 class AreaChildRelInline(InlineAutocompleteAdmin):
     model = models.AreaRelations
     verbose_name = _(u"Inside area")
     verbose_name_plural = _(u"Inside areas")
-    related_search_fields = {'child': ('label', 'reference'), }
+    #related_search_fields = {'child': ('label', 'reference'), }
     extra = 1
-    fk_name = 'child'
+    fk_name = 'parent'
 
 
 class AreaAdmin(admin.ModelAdmin):
     list_display = ['label', 'reference', 'area_type', ]
-    list_filter = ['area_type', ]
+    list_filter = ['area_type',]
     search_fields = ['label', 'reference']
     model = models.Area
     form = forms.AreaForm
