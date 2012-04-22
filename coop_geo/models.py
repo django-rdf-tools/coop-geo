@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
+from django.contrib.gis.geos.collections import MultiPolygon
+from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
+from django.utils.translation import ugettext_lazy as _
 from django_extensions.db import fields as exfields
 #from genericm2m.models import RelatedObjectsDescriptor
 
@@ -160,12 +161,14 @@ class Area(models.Model):
 
         geocollection = [childrel.child.polygon
                          for childrel in self.child_rels.all()]
-        polygon = geocollection[0]
+        n_polygon = geocollection[0]
         for polygon in geocollection[1:]:
-            polygon = polygon + polygon
+            n_polygon = n_polygon.union(polygon)
         #TODO: simplify with unions
-        if polygon != self.polygon:
-            self.polygon = polygon
+        if type(n_polygon) != MultiPolygon:
+            n_polygon = MultiPolygon([n_polygon])
+        if n_polygon != self.polygon:
+            self.polygon = n_polygon
             self.save()
         return
 
