@@ -3,7 +3,7 @@
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from coop.utils.autocomplete_admin import InlineAutocompleteAdmin
+from coop.utils.autocomplete_admin import FkAutocompleteAdmin, InlineAutocompleteAdmin
 
 
 import models
@@ -17,7 +17,7 @@ class LocationAdmin(admin.ModelAdmin):
 admin.site.register(models.Location, LocationAdmin)
 
 
-class AreaTypeAdmin(admin.ModelAdmin):
+class AreaTypeAdmin(FkAutocompleteAdmin):
     list_display = ['label', ]
 admin.site.register(models.AreaType, AreaTypeAdmin)
 
@@ -32,14 +32,15 @@ class AreaParentRelInline(admin.TabularInline):
 
 class AreaChildRelInline(InlineAutocompleteAdmin):
     model = models.AreaRelations
+    fk_name = 'parent'
     verbose_name = _(u"Inside area")
     verbose_name_plural = _(u"Inside areas")
-    #related_search_fields = {'child': ('label', 'reference'), }
-    extra = 1
-    fk_name = 'parent'
+    related_search_fields = {'child': ('label', 'reference'), }
+    extra = 5
 
 
-class AreaAdmin(admin.ModelAdmin):
+
+class AreaAdmin(FkAutocompleteAdmin):
     list_display = ['label', 'reference', 'area_type', ]
     list_filter = ['area_type',]
     search_fields = ['label', 'reference']
