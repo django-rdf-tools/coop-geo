@@ -10,6 +10,7 @@ import floppyforms as forms
 import models
 import widgets
 
+
 class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
@@ -27,6 +28,7 @@ class LocationForm(forms.ModelForm):
                                   u"an area.")
         return cleaned_data
 
+
 class AreaForm(forms.ModelForm):
     class Meta:
         model = models.Area
@@ -35,8 +37,9 @@ class AreaForm(forms.ModelForm):
         widgets = {
             'label': forms.TextInput(),
             'polygon': widgets.PolygonWidget(),
-            'default_location': chosenwidgets.ChosenSelect()
+            #'default_location': chosenwidgets.ChosenSelect()
         }
+
 
 class AreaFormForInline(forms.ModelForm):
     class Meta:

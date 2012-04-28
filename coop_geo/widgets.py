@@ -15,12 +15,14 @@ import floppyforms.gis as ff_gis
 
 from models import Area, AreaType, AreaLink, Location
 
+
 class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_location.html'
     map_width = 400
     point_zoom = 18
     geocode_region = settings.COOP_GEO_REGION
     geocode_bounding = settings.COOP_GEO_BOUNDING_BOX
+
     class Media:
         js = ('js/jquery-1.6.2.min.js',
               'js/jquery-ui-1.8.14.custom.min.js',
@@ -28,7 +30,7 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
               'http://openlayers.org/api/2.10/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
-        css = {'all':['css/smoothness/jquery-ui-1.8.14.custom.css']}
+        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
 
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
                 ['geocode_region', 'geocode_bounding', 'point_zoom']
@@ -38,12 +40,14 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
         context['areas'] = Area.get_all()
         return context
 
+
 class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_choose_location.html'
     map_width = 400
     point_zoom = 18
     geocode_region = settings.COOP_GEO_REGION
     geocode_bounding = settings.COOP_GEO_BOUNDING_BOX
+
     class Media:
         js = ('js/jquery-1.6.2.min.js',
               'js/jquery-ui-1.8.14.custom.min.js',
@@ -51,7 +55,7 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
               'http://openlayers.org/api/2.10/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
-        css = {'all':['css/smoothness/jquery-ui-1.8.14.custom.css']}
+        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
 
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
                 ['geocode_region', 'geocode_bounding', 'point_zoom']
@@ -86,17 +90,20 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
         #context['locations'] = Location.get_all(self.user)
         return context
 
+
 class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm.html'
     map_width = 400
     areas = Area.get_all()
 
+
 class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_choose_inline_area.html'
     map_width = 500
     point_zoom = 18
+
     class Media:
-        css = {'all':['css/coop_geo.css']}
+        css = {'all': ['css/coop_geo.css']}
 
     def __init__(self, available_locations=None):
         self.available_locations = available_locations
@@ -119,7 +126,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
             context['location'] = unicode(location)
             context['value_pk'] = location.pk
         context['wkt'] = wkt
-        context['parent_table_name'] = '-'.join(name.split('-')[:-2]+['group'])
+        context['parent_table_name'] = '-'.join(name.split('-')[:-2] + ['group'])
         context['module'] = 'map_%s' % name.replace('-', '_')
         context['name'] = name
         context['ADMIN_MEDIA_PREFIX'] = settings.ADMIN_MEDIA_PREFIX
@@ -129,9 +136,9 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
         return context
 
     def value_from_datadict(self, data, files, name):
-        area_pk = data.get('id_' + name +'_area_pk')
-        area_wkt = data.get('id_' + name +'_area_wkt')
-        area_location = data.get('id_' + name +'_location')
+        area_pk = data.get('id_' + name + '_area_pk')
+        area_wkt = data.get('id_' + name + '_area_wkt')
+        area_location = data.get('id_' + name + '_location')
         # not clean but no other simple way to implement it
         if area_wkt and area_location:
             # treatment of a circle
@@ -141,7 +148,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
 
             area_type, created = AreaType.objects.get_or_create(
                                         txt_idx='circle',
-                                        defaults={'label':"Circle"})
+                                        defaults={'label': "Circle"})
             default_location = None
             if area_location:
                 try:
@@ -149,8 +156,8 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
                 except:
                     return
             lbl = u"Rayon d'action - " + default_location.label
-            values = {'label':lbl[:150], 'default_location':default_location,
-                      'area_type':area_type, 'polygon':GEOSGeometry(area_wkt)}
+            values = {'label': lbl[:150], 'default_location': default_location,
+                      'area_type': area_type, 'polygon': GEOSGeometry(area_wkt)}
             area = None
             if area_pk:
                 try:

@@ -29,14 +29,17 @@ class Migration(SchemaMigration):
 
         # Adding field 'Area.area_type_tmp'
         db.add_column('coop_geo_area', 'area_type_tmp', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['coop_geo.AreaType'], null=True, blank=True), keep_default=False)
-        db.start_transaction()
-        for area in orm.Area.objects.all():
-            area_type, created = orm.AreaType.objects.get_or_create(
-                    label=dict(AREA_TYPES)[area.area_type],
-                    txt_idx=area.area_type)
-            area.area_type_tmp = area_type
-            area.save()
-        db.commit_transaction()
+        
+        # Enable if needed ! Bug "dry run" avec South
+ 
+        # db.start_transaction()
+        # for area in orm.Area.objects.all():
+        #     area_type, created = orm.AreaType.objects.get_or_create(
+        #             label=dict(AREA_TYPES)[area.area_type],
+        #             txt_idx=area.area_type)
+        #     area.area_type_tmp = area_type
+        #     area.save()
+        # db.commit_transaction()
 
     def backwards(self, orm):
         

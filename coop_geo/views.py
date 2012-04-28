@@ -5,8 +5,8 @@ from django import http
 from django.utils import simplejson as json
 from django.core import serializers
 from django.views.generic.list import BaseListView
-
 from models import Location, Area
+
 
 class JSONResponseMixin(object):
     def render_to_response(self, context):
@@ -23,14 +23,17 @@ class JSONResponseMixin(object):
                                              ensure_ascii=False)
         return response
 
+
 class SimpleResponseMixin(object):
     def render_to_response(self, context):
         content = "\n".join(('%s|%s' % (unicode(item), item.pk)
                     for item in context['object_list']))
         return http.HttpResponse(content)
 
+
 class JSONLocationView(JSONResponseMixin, BaseListView):
     model = Location
+
     def get_queryset(self):
         query = super(JSONLocationView, self).get_queryset()
         city = self.kwargs['city']
@@ -40,8 +43,10 @@ class JSONLocationView(JSONResponseMixin, BaseListView):
             query = query.filter(adr1__icontains=address)
         return query
 
+
 class SimpleAreaView(SimpleResponseMixin, BaseListView):
     model = Area
+
     def get_queryset(self):
         query = super(SimpleAreaView, self).get_queryset()
         get = self.request.GET
@@ -53,8 +58,10 @@ class SimpleAreaView(SimpleResponseMixin, BaseListView):
                              area_type__pk=area_type)
         return query
 
+
 class JSONAreaView(JSONResponseMixin, BaseListView):
     model = Area
+    
     def get_queryset(self):
         query = super(JSONAreaView, self).get_queryset()
         get = self.request.GET
