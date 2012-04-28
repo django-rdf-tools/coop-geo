@@ -26,7 +26,7 @@ class Command(BaseCommand):
             for k, lbl in (('DP', 'department'),
                            ('CT', 'canton'),
                            ('TW', 'town')):
-                self.area_type[k], created = models.AreaType.get_or_create(
+                self.area_type[k], created = models.AreaType.objects.get_or_create(
                                      txt_idx=k, defaults={'label':lbl})
         return self.area_type[mnemonic]
 
