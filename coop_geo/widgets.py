@@ -99,7 +99,7 @@ class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
 
 class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm_choose_inline_area.html'
-    map_width = 500
+    map_width = 400
     point_zoom = 18
 
     class Media:

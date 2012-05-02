@@ -3,11 +3,14 @@
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from coop.utils.autocomplete_admin import FkAutocompleteAdmin, InlineAutocompleteAdmin
+from coop.utils.autocomplete_admin import InlineAutocompleteAdmin
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
+from django.contrib.contenttypes.generic import GenericTabularInline
 
 import models
 import forms
+
+admin.site.register(models.LocationCategory)
 
 
 class LocationAdmin(admin.ModelAdmin):
@@ -49,3 +52,30 @@ class AreaAdmin(ForeignKeyAutocompleteAdmin):  # FkAutocompleteAdmin too but...
     related_search_fields = {'default_location': ('label', 'adr1', 'city')} 
 admin.site.register(models.Area, AreaAdmin)
 
+
+class LocatedInline(GenericTabularInline, InlineAutocompleteAdmin):
+    verbose_name = _(u'Place')
+    verbose_name_plural = _(u'Places')
+    model = models.Located
+    related_search_fields = {'location': ('label', 'adr1', 'adr2', 'zipcode', 'city'), }
+    extra = 1
+
+
+class AreaInline(GenericTabularInline):
+    form = forms.AreaFormForInline
+    verbose_name = _(u'Impact area')
+    verbose_name_plural = _(u'Impact areas')
+    related_search_fields = {'location': ('label', 'reference'), }
+    model = models.AreaLink
+    extra = 1
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        associated_obj = None
+        if db_field.name == "location":
+            if request._obj_ is not None:
+                associated_obj = request._obj_
+        r = super(AreaInline, self).formfield_for_foreignkey(db_field,
+                                                      request, **kwargs)
+        # decorate the modelform in order to use it in the area widget
+        r._associated_obj = request._obj_
+        return r

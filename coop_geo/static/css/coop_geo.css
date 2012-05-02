@@ -1,21 +1,61 @@
-/**/
+/* @override http://localhost:8000/static/css/coop_geo.css */
+
+
 fieldset.map-controls{
-    padding:1.5em;
-    border:1px solid #ccc;
+    border: 1px none #ccc;
+	position: relative;
+	padding: 0.5em 1em 1em;
 }
+
+fieldset.map-controls legend{
+	font-size: 1em;
+	padding-left: 10px;
+	border-bottom-style: solid;
+	border-bottom-color: #c7c8c9;
+	padding-bottom: 0;
+	display: block;
+}
+
+fieldset.map-controls select{
+	position: relative;
+	margin-bottom: 10px;
+}
+
+fieldset.map-controls input.ac_input{
+	width: 220px;
+	position: relative;
+}
+
+fieldset.map-controls ul{
+	list-style-type: none;
+	position: relative;
+	left: 116px;
+	width: 240px;
+	top: -26px;
+	font-size: 12px;
+}
+
+fieldset.map-controls ul li input{
+	position: relative;
+	top: -4px;
+	margin-right: 5px;
+}
+
 
 fieldset.map-controls.collapsed{
     padding:0;
     border:none;
 }
 
-.current-area label, .current-area{font-size:16px;}
+.current-area label, .current-area{
+	font-size: 16px;
+	}
 
-fieldset.map-controls legend{
-    font-size:1.2em;
-}
-
-fieldset.map-controls label{
+fieldset.map-controls label.control-label{
     width:100px;
     display:inline-table;
+	text-align: right;
+	margin-right: 10px;
 }
+
+

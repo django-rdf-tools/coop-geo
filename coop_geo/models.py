@@ -12,6 +12,20 @@ from django_extensions.db import fields as exfields
 #from genericm2m.models import RelatedObjectsDescriptor
 
 
+class LocationCategory(models.Model):
+    label = models.CharField(max_length=60, verbose_name=_(u"label"))
+    slug = exfields.AutoSlugField(populate_from=('label'))
+
+    class Meta:
+        ordering = ['label']
+
+    def __unicode__(self):
+        return unicode(self.label)
+
+    # def get_absolute_url(self):
+    #     return reverse('location_category', args=[self.slug])
+
+
 class Location(models.Model):
     """Location: a named point or/and polygon entered by an administrator"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"),
@@ -83,13 +97,13 @@ from django.contrib.contenttypes import generic
 
 
 class Located(models.Model):
+    # things which are located
     location = models.ForeignKey(Location, null=True, blank=True,
                                  verbose_name=_(u"location"))
     main_location = models.BooleanField(default=False,
                                  verbose_name=_(u"main venue"))
-    location_type = models.CharField(blank=True, max_length=100,
-                                 verbose_name=_(u"type of location"))
-    # things which are located
+    category = models.ForeignKey(LocationCategory, null=True, blank=True,
+                                verbose_name=_(u"type of location"))
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
