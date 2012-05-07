@@ -43,7 +43,7 @@ class Command(BaseCommand):
                                         'update_auto': True,
                                         'area_type': epci})
                     if created:
-                        self.stdout.write(u'Zone créée : %s' % row[1].decode('utf-8'))
+                        self.stdout.write(u'Zone créée : %s\n' % row[1].decode('utf-8'))
                     communes = csv.reader(open(os.path.abspath(COOP_GEO_PATH + '/epci/communes.csv'), 'rb'), delimiter=';')
                     for comm in communes:
                         if cc.reference == comm[1]:
