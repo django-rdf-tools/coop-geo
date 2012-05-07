@@ -18,6 +18,8 @@ class LocationCategory(models.Model):
 
     class Meta:
         ordering = ['label']
+        verbose_name = _(u'Location category')
+        verbose_name_plural = _(u'Location categories')
 
     def __unicode__(self):
         return unicode(self.label)
@@ -126,6 +128,10 @@ class AreaType(models.Model):
     def __unicode__(self):
         return self.label
 
+    class Meta:
+        verbose_name = _(u'Area type')
+        verbose_name_plural = _(u'Area types')
+        
 
 class Area(models.Model):
     """Areas: towns, regions, ... mainly set by import"""
