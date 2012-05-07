@@ -1,3 +1,4 @@
 recursive-include coop_geo/static *
 recursive-include coop_geo/templates *
 recursive-include coop_geo/locale *
+recursive-include coop_geo/epci *
