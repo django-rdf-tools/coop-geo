@@ -23,9 +23,10 @@ class Command(BaseCommand):
     def _get_area_type(self, mnemonic):
         if not hasattr(self, 'area_type'):
             self.area_type = {}
-            for k, lbl in (('DP', 'department'),
-                           ('CT', 'canton'),
-                           ('TW', 'town')):
+            for k, lbl in (('DP', 'Départment'),
+                           ('CT', 'Canton'),
+                           ('TW', 'Ville'),
+                           ('RG', 'Région')):
                 self.area_type[k], created = models.AreaType.objects.get_or_create(
                                      txt_idx=k, defaults={'label':lbl})
         return self.area_type[mnemonic]
