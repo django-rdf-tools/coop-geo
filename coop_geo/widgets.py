@@ -24,10 +24,12 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     geocode_bounding = settings.COOP_GEO_BOUNDING_BOX
 
     class Media:
+        extend = False
         js = ('js/jquery-1.6.2.min.js',
               'js/jquery-ui-1.8.14.custom.min.js',
               'http://maps.google.com/maps/api/js?sensor=false',
-              'http://openlayers.org/api/2.10/OpenLayers.js',
+              #'http://openlayers.org/api/2.10/OpenLayers.js',
+              'js/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
         css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
@@ -49,10 +51,12 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     geocode_bounding = settings.COOP_GEO_BOUNDING_BOX
 
     class Media:
+        extend = False
         js = ('js/jquery-1.6.2.min.js',
               'js/jquery-ui-1.8.14.custom.min.js',
               'http://maps.google.com/maps/api/js?sensor=false',
-              'http://openlayers.org/api/2.10/OpenLayers.js',
+              #'http://openlayers.org/api/2.10/OpenLayers.js',
+              'js/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
         css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
@@ -103,6 +107,12 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     point_zoom = 18
 
     class Media:
+        extend = False
+        js = (
+            'js/OpenLayers.js',
+            'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
+            'floppyforms/js/MapWidget.js',
+        )
         css = {'all': ['css/coop_geo.css']}
 
     def __init__(self, available_locations=None):
