@@ -137,7 +137,8 @@ class Area(models.Model):
     """Areas: towns, regions, ... mainly set by import"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
     reference = models.CharField(max_length=150, verbose_name=_(u"reference"),
-                                 blank=True, null=True)
+                                 blank=True, null=True,
+                                 help_text=_(u"SI ce n'est pas une référence INSEE, ne mettez rien ici."))
     default_location = models.ForeignKey(Location, blank=True, null=True,
             verbose_name=_(u"default location"), related_name='associated_area')
     related_areas = models.ManyToManyField('Area',
@@ -270,6 +271,9 @@ class Area(models.Model):
                 childs[-1]._end_leaf += 1
                 sorted_areas += childs
         return sorted_areas
+
+    
+    # http://rdf.insee.fr/geo/2011/COM_03273
 
 
 def area_post_save(sender, **kwargs):
