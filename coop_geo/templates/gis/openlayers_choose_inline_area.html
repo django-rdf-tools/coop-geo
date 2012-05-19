@@ -184,6 +184,14 @@
             featuresadded: featureModified
         });
 
+        var defStyle = {strokeColor: "blue", fillOpacity:0.2, strokeOpacity: "1",
+                        strokeWidth: 2, fillColor: "blue", pointRadius: 5, cursor: "pointer"};
+        var sty = OpenLayers.Util.applyDefaults(defStyle, OpenLayers.Feature.Vector.style["default"]);
+        var sm = new OpenLayers.StyleMap({
+            'default': sty,
+            'select': {fillOpacity:0.2},
+        });
+        {{module}}.layers.vector.styleMap = sm;
         {{module}}_controls = {
             modify: new OpenLayers.Control.ModifyFeature({{module}}.layers.vector),
         };
