@@ -32,7 +32,8 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
               'js/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
-        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
+        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css',
+                       'css/openlayers.css']}
 
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
                 ['geocode_region', 'geocode_bounding', 'point_zoom']
@@ -59,7 +60,8 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
               'js/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
               'js/MapWidget.js',)
-        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css']}
+        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css',
+                       'css/openlayers.css']}
 
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
                 ['geocode_region', 'geocode_bounding', 'point_zoom']
@@ -113,7 +115,8 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
             'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
             'floppyforms/js/MapWidget.js',
         )
-        css = {'all': ['css/coop_geo.css']}
+        css = {'all': ['css/coop_geo.css',
+                       'css/openlayers.css']}
 
     def __init__(self, available_locations=None):
         self.available_locations = available_locations

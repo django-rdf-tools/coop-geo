@@ -186,7 +186,8 @@ function MapWidget(options) {
         opacity: 0.4,
         point_zoom: 12,
         scale_text: false,
-        scrollable: true
+        scrollable: true,
+        theme: null
     };
     // Altering using user-provied options
     for (var property in options) {
