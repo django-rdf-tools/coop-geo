@@ -95,9 +95,11 @@ var {{attrs.id}}_areas = new Array();
         map_options: map_options,
         map_srid: {{ map_srid }},
         name: '{{ name }}',
+        color: '000099',
         point_zoom: {{point_zoom}}
     };{% endblock %}
     var {{ module }} = new MapWidget(options);
+    {{module}}.enableDrawing();
     var {{attrs.id}}_results = new Array();
     wkt_parser = new OpenLayers.Format.WKT();
     var {{attrs.id}}_area_id = {{module}}.options.id.replace('point', 'area');
