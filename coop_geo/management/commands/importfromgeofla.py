@@ -3,11 +3,10 @@
 
 import os
 from optparse import make_option
-
 from django.core.management.base import BaseCommand, CommandError
-
 from geodjangofla.models import Commune, Departement, Canton
 from coop_geo import models
+
 
 class Command(BaseCommand):
     args = '<numero_departements>'
@@ -23,12 +22,12 @@ class Command(BaseCommand):
     def _get_area_type(self, mnemonic):
         if not hasattr(self, 'area_type'):
             self.area_type = {}
-            for k, lbl in (('DP', 'Départment'),
-                           ('CT', 'Canton'),
-                           ('TW', 'Ville'),
-                           ('RG', 'Région')):
+            for k, lbl in (('DEP', 'Départment'),
+                           ('CAN', 'Canton'),
+                           ('COM', 'Ville'),
+                           ('REG', 'Région')):
                 self.area_type[k], created = models.AreaType.objects.get_or_create(
-                                     txt_idx=k, defaults={'label':lbl})
+                                     txt_idx=k, defaults={'label': lbl})
         return self.area_type[mnemonic]
 
     def handle(self, *args, **options):
@@ -51,18 +50,18 @@ class Command(BaseCommand):
                                    "dans la base geofla." % dpt)
             departement = departement.all()[0]
             ref_dpt = models.Area.objects.filter(reference=dpt,
-                                           area_type=self._get_area_type('DP'))
-            def_loc = {'city':departement.nom_chf,
-                       'label':u"Préfecture",
-                       'point':departement.chf_lieu}
+                                           area_type=self._get_area_type('DEP'))
+            def_loc = {'city': departement.nom_chf,
+                       'label': u"Préfecture",
+                       'point': departement.chf_lieu}
             if not ref_dpt.count():
                 loc = models.Location.objects.create(**def_loc)
                 ref_dpt = models.Area.objects.create(**{
-                                'label':departement.nom_dept,
-                                'reference':dpt,
-                                'polygon':departement.limite,
-                                'default_location':loc,
-                                'area_type':self._get_area_type('DP')})
+                                'label': departement.nom_dept,
+                                'reference': dpt,
+                                'polygon': departement.limite,
+                                'default_location': loc,
+                                'area_type': self._get_area_type('DEP')})
             else:
                 ref_dpt = ref_dpt.all()[0]
                 if update:
@@ -75,7 +74,7 @@ class Command(BaseCommand):
             # for idx, canton in enumerate(Canton.objects.filter(code_dept=dpt)):
             #     code_canton = str(canton.code_dept + canton.code_cant)
             #     ref = models.Area.objects.filter(reference=code_canton,
-            #                               area_type=self._get_area_type('CT'))
+            #                               area_type=self._get_area_type('CAN'))
             #     def_loc = {'city':canton.nom_chf,
             #                'label':u"Chef-lieu de canton",
             #                'point':canton.chf_lieu}
@@ -97,13 +96,13 @@ class Command(BaseCommand):
             #                           'default_location':loc,
             #                           'area_type':self._get_area_type('CT')})
 
-            for idx,commune in enumerate(Commune.objects.filter(
+            for idx, commune in enumerate(Commune.objects.filter(
                                           insee_com__startswith=dpt)):
                 ref = models.Area.objects.filter(reference=commune.insee_com,
-                                            area_type=self._get_area_type('TW'))
-                def_loc = {'city':commune.nom_comm,
-                           'label':u"Mairie",
-                           'point':commune.chf_lieu}
+                                            area_type=self._get_area_type('COM'))
+                def_loc = {'city': commune.nom_comm,
+                           'label': u"Mairie",
+                           'point': commune.chf_lieu}
                 if ref.count():
                     if not update:
                         continue
@@ -116,11 +115,11 @@ class Command(BaseCommand):
                 else:
                     loc = models.Location.objects.create(**def_loc)
                     ref = models.Area.objects.create(**{
-                                          'label':commune.nom_comm,
-                                          'reference':commune.insee_com,
-                                          'polygon':commune.limite,
-                                          'default_location':loc,
-                                          'area_type':self._get_area_type('TW')})
+                                          'label': commune.nom_comm,
+                                          'reference': commune.insee_com,
+                                          'polygon': commune.limite,
+                                          'default_location': loc,
+                                          'area_type': self._get_area_type('COM')})
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
                 ref_dpt.add_child(ref)
