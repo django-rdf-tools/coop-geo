@@ -8,8 +8,8 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Area.status'
-        db.add_column('coop_geo_area', 'status', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
+        # Adding field 'Area.uri_mode'
+        db.add_column('coop_geo_area', 'uri_mode', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
 
         # Adding field 'Area.uri'
         db.add_column('coop_geo_area', 'uri', self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True), keep_default=False)
@@ -17,8 +17,8 @@ class Migration(SchemaMigration):
         # Adding field 'Area.uuid'
         db.add_column('coop_geo_area', 'uuid', self.gf('django.db.models.fields.CharField')(max_length=50, unique=True, null=True), keep_default=False)
 
-        # Adding field 'Location.status'
-        db.add_column('coop_geo_location', 'status', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
+        # Adding field 'Location.uri_mode'
+        db.add_column('coop_geo_location', 'uri_mode', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
 
         # Adding field 'Location.uri'
         db.add_column('coop_geo_location', 'uri', self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True), keep_default=False)
@@ -35,8 +35,8 @@ class Migration(SchemaMigration):
         # Removing unique constraint on 'Location', fields ['uuid']
         db.delete_unique('coop_geo_location', ['uuid'])
 
-        # Deleting field 'Area.status'
-        db.delete_column('coop_geo_area', 'status')
+        # Deleting field 'Area.uri_mode'
+        db.delete_column('coop_geo_area', 'uri_mode')
 
         # Deleting field 'Area.uri'
         db.delete_column('coop_geo_area', 'uri')
@@ -44,8 +44,8 @@ class Migration(SchemaMigration):
         # Deleting field 'Area.uuid'
         db.delete_column('coop_geo_area', 'uuid')
 
-        # Deleting field 'Location.status'
-        db.delete_column('coop_geo_location', 'status')
+        # Deleting field 'Location.uri_mode'
+        db.delete_column('coop_geo_location', 'uri_mode')
 
         # Deleting field 'Location.uri'
         db.delete_column('coop_geo_location', 'uri')
@@ -100,7 +100,7 @@ class Migration(SchemaMigration):
             'polygon': ('django.contrib.gis.db.models.fields.MultiPolygonField', [], {'null': 'True', 'blank': 'True'}),
             'reference': ('django.db.models.fields.CharField', [], {'max_length': '150', 'null': 'True', 'blank': 'True'}),
             'related_areas': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['coop_geo.Area']", 'through': "orm['coop_geo.AreaRelations']", 'symmetrical': 'False'}),
-            'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
+            'uri_mode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'update_auto': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'uri': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'max_length': '50', 'unique': 'True', 'null': 'True'})
@@ -145,7 +145,7 @@ class Migration(SchemaMigration):
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2012, 5, 31, 9, 8, 22, 73495)', 'null': 'True', 'blank': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'point': ('django.contrib.gis.db.models.fields.PointField', [], {'null': 'True', 'blank': 'True'}),
-            'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
+            'uri_mode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'uri': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'max_length': '50', 'unique': 'True', 'null': 'True'}),
             'zipcode': ('django.db.models.fields.CharField', [], {'max_length': '5', 'null': 'True', 'blank': 'True'})
