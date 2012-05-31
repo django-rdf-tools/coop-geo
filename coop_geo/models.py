@@ -10,7 +10,7 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db import fields as exfields
 #from genericm2m.models import RelatedObjectsDescriptor
-from coop.models import URIModel, STATES
+from coop.models import URIModel, URI_MODE
 import Geohash
 
 
@@ -163,7 +163,7 @@ class Area(URIModel):
     #  overwrite to deal with insee reference
     def init_uri(self):
         if self.reference:
-            self.status = STATES.IMPORTED
+            self.uri_mode = URI_MODE.IMPORTED
             self.uri = 'http://rdf.insee.fr/geo/2011/' +  \
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
