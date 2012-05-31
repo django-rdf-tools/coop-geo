@@ -1,5 +1,4 @@
 [
-
     {
         "pk": 2, 
         "model": "coop_geo.locationcategory", 
@@ -16,9 +15,16 @@
             "label": "Si\u00e8ge social"
         }
     },
-
     {
-        "pk": 1, 
+        "pk": 5, 
+        "model": "coop_geo.areatype", 
+        "fields": {
+            "txt_idx": "EPCI", 
+            "label": "Intercommunalit\u00e9"
+        }
+    }, 
+    {
+        "pk": 2, 
         "model": "coop_geo.areatype", 
         "fields": {
             "txt_idx": "DEP", 
@@ -29,24 +35,16 @@
         "pk": 4, 
         "model": "coop_geo.areatype", 
         "fields": {
-            "txt_idx": "REG", 
-            "label": "R\u00e9gion"
+            "txt_idx": "COM", 
+            "label": "Ville"
         }
     }, 
     {
         "pk": 3, 
         "model": "coop_geo.areatype", 
         "fields": {
-            "txt_idx": "COM", 
-            "label": "Ville"
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "coop_geo.areatype", 
-        "fields": {
-            "txt_idx": "EPCI", 
-            "label": "Intercommunalit\u00e9"
+            "txt_idx": "REG", 
+            "label": "R\u00e9gion"
         }
     }
 ]
