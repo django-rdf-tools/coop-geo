@@ -10,6 +10,8 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db import fields as exfields
 #from genericm2m.models import RelatedObjectsDescriptor
+from coop.models import URIModel, URI_MODE
+import Geohash
 
 
 class LocationCategory(models.Model):
@@ -28,7 +30,7 @@ class LocationCategory(models.Model):
     #     return reverse('location_category', args=[self.slug])
 
 
-class Location(models.Model):
+class Location(URIModel):
     """Location: a named point or/and polygon entered by an administrator"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"),
                              blank=True, null=True)
@@ -46,13 +48,16 @@ class Location(models.Model):
                               null=True)
     owner = models.ForeignKey(User, verbose_name=_(u'owner'), blank=True,
                               null=True, editable=False)
+    geohash = models.CharField(verbose_name=_(u'geohash'), null=True, blank=True,
+                               max_length=20, editable=False)
+
     objects = models.GeoManager()
 
     created = exfields.CreationDateTimeField(_(u'created'), null=True)
     modified = exfields.ModificationDateTimeField(_(u'modified'), null=True)
-    uuid = exfields.UUIDField(null=True)  # nécessaire pour URI
 
     #related = RelatedObjectsDescriptor()
+
 
     class Meta:
         verbose_name = _(u'Location')
@@ -80,6 +85,8 @@ class Location(models.Model):
         #                             u"an area."))
         if not self.label:
             self.label = self.adr1
+        if self.point:
+            self.geohash = Geohash.encode(self.point.y, self.point.x)
         return super(Location, self).save(*args, **kwargs)
 
     @classmethod
@@ -133,7 +140,7 @@ class AreaType(models.Model):
         verbose_name_plural = _(u'Area types')
         
 
-class Area(models.Model):
+class Area(URIModel):
     """Areas: towns, regions, ... mainly set by import"""
     label = models.CharField(max_length=150, verbose_name=_(u"label"))
     reference = models.CharField(max_length=150, verbose_name=_(u"reference"),
@@ -152,6 +159,19 @@ class Area(models.Model):
     update_auto = models.BooleanField(verbose_name=_(u"update automatically?"),
                                       default=False)
     objects = models.GeoManager()
+
+    #  overwrite to deal with insee reference
+    def init_uri(self):
+        if self.reference:
+            self.uri_mode = URI_MODE.IMPORTED
+            self.uri = 'http://rdf.insee.fr/geo/2011/' +  \
+                AreaType.objects.get(id=self.area_type_id).txt_idx + \
+                '_' + self.reference
+            self.save()
+            return self.uri
+        return super(Area, self).init_uri()
+
+
 
     class Meta:
         verbose_name = _(u'Area')
