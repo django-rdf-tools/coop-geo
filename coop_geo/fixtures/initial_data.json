@@ -1,21 +1,5 @@
 [
     {
-        "pk": 2, 
-        "model": "coop_geo.locationcategory", 
-        "fields": {
-            "slug": "boutique", 
-            "label": "Boutique"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "coop_geo.locationcategory", 
-        "fields": {
-            "slug": "siege-social", 
-            "label": "Si\u00e8ge social"
-        }
-    },
-    {
         "pk": 5, 
         "model": "coop_geo.areatype", 
         "fields": {
