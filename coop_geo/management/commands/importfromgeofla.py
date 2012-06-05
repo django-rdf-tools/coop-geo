@@ -120,6 +120,7 @@ class Command(BaseCommand):
                                           'polygon': commune.limite,
                                           'default_location': loc,
                                           'area_type': self._get_area_type('COM')})
+
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
                 ref_dpt.add_child(ref)
