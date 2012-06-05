@@ -164,7 +164,7 @@ class Area(URIModel):
     def init_uri(self):
         if self.reference:
             self.uri_mode = URI_MODE.IMPORTED
-            self.uri = 'http://rdf.insee.fr/geo/2011/' +  \
+            self.uri = settings.RDF_NAMESPACES['insee'] +  \
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
             self.save()
