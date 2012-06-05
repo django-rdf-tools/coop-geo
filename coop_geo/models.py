@@ -169,9 +169,8 @@ class Area(URIModel):
                 '_' + self.reference
             self.save()
             return self.uri
-        return super(Area, self).init_uri()
-
-
+        else:    
+            return super(Area, self).init_uri()
 
     class Meta:
         verbose_name = _(u'Area')
