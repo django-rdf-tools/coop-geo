@@ -23,7 +23,7 @@ class Command(BaseCommand):
         if not hasattr(self, 'area_type'):
             self.area_type = {}
             for k, lbl in (('DEP', 'Départment'),
-                           ('CAN', 'Canton'),
+                           #('CAN', 'Canton'),
                            ('COM', 'Ville'),
                            ('REG', 'Région')):
                 self.area_type[k], created = models.AreaType.objects.get_or_create(
