@@ -165,11 +165,9 @@ class Area(URIModel):
             self.uri = settings.RDF_NAMESPACES['insee'] +  \
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
-            self.save()
             return self.uri
-        return super(Area, self).init_uri()
-
-
+        else:    
+            return super(Area, self).init_uri()
 
     class Meta:
         verbose_name = _(u'Area')

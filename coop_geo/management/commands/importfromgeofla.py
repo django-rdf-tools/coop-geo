@@ -23,7 +23,7 @@ class Command(BaseCommand):
         if not hasattr(self, 'area_type'):
             self.area_type = {}
             for k, lbl in (('DEP', 'Départment'),
-                           ('CAN', 'Canton'),
+                           #('CAN', 'Canton'),
                            ('COM', 'Ville'),
                            ('REG', 'Région')):
                 self.area_type[k], created = models.AreaType.objects.get_or_create(
@@ -120,6 +120,7 @@ class Command(BaseCommand):
                                           'polygon': commune.limite,
                                           'default_location': loc,
                                           'area_type': self._get_area_type('COM')})
+
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
                 ref_dpt.add_child(ref)
