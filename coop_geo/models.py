@@ -53,8 +53,6 @@ class Location(URIModel):
 
     objects = models.GeoManager()
 
-    created = exfields.CreationDateTimeField(_(u'created'), null=True)
-    modified = exfields.ModificationDateTimeField(_(u'modified'), null=True)
 
     #related = RelatedObjectsDescriptor()
 
