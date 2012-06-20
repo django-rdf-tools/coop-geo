@@ -158,11 +158,11 @@ class Area(URIModel):
                                       default=False)
     objects = models.GeoManager()
 
-    #  overwrite to deal with insee reference
+    #  overwrite to deal with INSEE reference
     def init_uri(self):
         if self.reference:
             self.uri_mode = URI_MODE.IMPORTED
-            self.uri = settings.RDF_NAMESPACES['insee'] +  \
+            self.uri = settings.RDF_NAMESPACES['geofr'] +  \
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
             return self.uri
@@ -289,7 +289,7 @@ class Area(URIModel):
         return sorted_areas
 
     
-    # http://rdf.insee.fr/geo/2011/COM_03273
+    # http://rdf.insee.fr/geo/COM_03273
 
 
 def area_post_save(sender, **kwargs):
