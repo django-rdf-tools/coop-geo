@@ -74,7 +74,7 @@ class Location(URIModel):
 
     def has_point(self):
         return self.point != None
-    has_point.boolean = True    
+    has_point.boolean = True
     has_point.short_description = _(u'GPS')
 
     def save(self, *args, **kwargs):
@@ -136,7 +136,7 @@ class AreaType(models.Model):
     class Meta:
         verbose_name = _(u'Area type')
         verbose_name_plural = _(u'Area types')
-        
+
 
 class Area(URIModel):
     """Areas: towns, regions, ... mainly set by import"""
@@ -166,7 +166,7 @@ class Area(URIModel):
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
             return self.uri
-        else:    
+        else:
             return super(Area, self).init_uri()
 
     class Meta:
@@ -288,7 +288,7 @@ class Area(URIModel):
                 sorted_areas += childs
         return sorted_areas
 
-    
+
     # http://rdf.insee.fr/geo/COM_03273
 
 
@@ -309,8 +309,8 @@ post_save.connect(area_post_save, sender=Area)
 
 
 class AreaLink(models.Model):
-    location = models.ForeignKey(Area, null=True, blank=True,
-                      verbose_name=_(u'location'))
+    location = models.ForeignKey(Area, null=True, blank=True,  # TODO devrait s'appeler area
+                      verbose_name=_(u'area'))
     # things which are in an area
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField()
