@@ -22,7 +22,7 @@
     }
     .address_results ul#{{attrs.id}}_results{
         margin:0;
-    } 
+    }
     .module .area_tree ul,.module .area_tree li{
         margin:0;
         padding:0;
@@ -148,6 +148,11 @@ var {{attrs.id}}_areas = new Array();
             if(!town){
                 alert("{%trans "You must at least precise the town."%}")
                 return false;
+            } else {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCWtyEJClXUK6QVqeLuxgPeCJkF4_RYmjs&sensor=false&callback=initialize';
+                document.body.appendChild(script);
             }
             var address = jQuery("#id_adr1").val();
             if(address){

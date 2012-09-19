@@ -23,11 +23,12 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     geocode_region = settings.COOP_GEO_REGION
     geocode_bounding = settings.COOP_GEO_BOUNDING_BOX
 
+
     class Media:
         extend = False
-        js = ('js/jquery-1.6.2.min.js',
-              'js/jquery-ui-1.8.14.custom.min.js',
-              'http://maps.google.com/maps/api/js?sensor=false',
+        js = (#'js/jquery-1.6.2.min.js',
+              #'js/jquery-ui-1.8.14.custom.min.js',
+              #'http://maps.google.com/maps/api/js?sensor=false',
               #'http://openlayers.org/api/2.10/OpenLayers.js',
               'js/OpenLayers.js',
               'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
@@ -38,10 +39,10 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
                 ['geocode_region', 'geocode_bounding', 'point_zoom']
 
-    def get_context_data(self):
-        context = super(LocationPointWidget, self).get_context_data()
-        context['areas'] = Area.get_all()
-        return context
+    # def get_context_data(self):
+    #     context = super(LocationPointWidget, self).get_context_data()
+    #     context['areas'] = Area.get_all()
+    #     return context
 
 
 class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
@@ -53,8 +54,8 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
 
     class Media:
         extend = False
-        js = ('js/jquery-1.6.2.min.js',
-              'js/jquery-ui-1.8.14.custom.min.js',
+        js = (#'js/jquery-1.6.2.min.js',
+              #'js/jquery-ui-1.8.14.custom.min.js',
               'http://maps.google.com/maps/api/js?sensor=false',
               #'http://openlayers.org/api/2.10/OpenLayers.js',
               'js/OpenLayers.js',
