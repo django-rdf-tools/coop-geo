@@ -26,14 +26,11 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
 
     class Media:
         extend = False
-        js = (#'js/jquery-1.6.2.min.js',
-              #'js/jquery-ui-1.8.14.custom.min.js',
-              'http://maps.google.com/maps/api/js?sensor=false',
-              #'http://openlayers.org/api/2.10/OpenLayers.js',
+        js = ('http://maps.google.com/maps/api/js?sensor=false',
               'js/OpenLayers.js',
               'js/OpenStreetMap.js',
               'js/MapWidget.js',)
-        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css',
+        css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css', # on l'a déjà aussi dans Bootstrap --> if...
                        'css/openlayers.css']}
 
     map_attrs = list(ff_gis.BaseOsmWidget.map_attrs) + \
