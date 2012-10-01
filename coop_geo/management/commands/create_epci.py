@@ -25,6 +25,7 @@ class Command(BaseCommand):
             raise CommandError("Veuillez entrer au moins un numero de "\
                                "departement")
         for dpt in args:
+
             try:
                 assert len(dpt) < 3
             except AssertionError:
@@ -32,7 +33,7 @@ class Command(BaseCommand):
                                    "valide." % dpt)
             dpt = len(dpt) == 1 and "0" + dpt or dpt
             self.stdout.write('\nDepartement %s\n' % dpt)
-            rows = csv.reader(open( os.path.abspath(COOP_GEO_PATH + '/epci/epci.csv'), 'rb'), 
+            rows = csv.reader(open( os.path.abspath(COOP_GEO_PATH + '/epci/epci.csv'), 'rb'),
                                 delimiter=';')
             p = re.compile('\d{2}' + str(dpt) + '\d{5}')
             for row in rows:
@@ -51,7 +52,9 @@ class Command(BaseCommand):
                                 commune = models.Area.objects.get(reference=comm[0])
                             except:
                                 self.stdout.write(u'ERREUR : la commune avec le code INSEE %s n\'a pas été trouvée\n' % comm[0])
-                            rel = models.AreaRelations.objects.get_or_create(parent=cc, child=commune)
+                            rel, created = models.AreaRelations.objects.get_or_create(parent=cc, child=commune)
+                            if created:
+                                self.stdout.write(u'Relation %s <--> %s créée' % (cc, commune))
 
                 #self.stdout.write('\n')
         self.stdout.write(u'\n*** Import terminé ***\n\n')
