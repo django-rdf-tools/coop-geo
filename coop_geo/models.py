@@ -12,6 +12,7 @@ from django_extensions.db import fields as exfields
 #from genericm2m.models import RelatedObjectsDescriptor
 from coop.models import URIModel, URI_MODE
 import Geohash
+import rdflib
 
 
 class LocationCategory(models.Model):
@@ -97,6 +98,98 @@ class Location(URIModel):
         if user:
             locations = locations.filter(owner=user)
         return locations.order_by('label')
+
+    # RDF stuff
+    @property
+    def location_uri(self):
+        return 'http://data.economie-solidaire.fr/id/location/%s' % self.geohash
+
+    def toRdfGraph(self):
+        g = rdflib.Graph()
+        g.add((rdflib.term.URIRef(self.location_uri), settings.NS.rdf.type, settings.NS.dct.Location))
+        for method, arguments, reverse in self.location_rdf_mapping:
+            for triple in getattr(self, method)(*arguments):
+                g.add(triple)
+        if not self.adr1 == u'': 
+            g = g + super(Location, self).toRdfGraph()
+
+        return g
+
+
+    def to_django(self, g):
+        for method, arguments, reverse in self.location_rdf_mapping:
+            getattr(self, reverse)(g, *arguments)
+        for method, arguments, reverse in self.rdf_mapping:
+            getattr(self, reverse)(g, *arguments)
+        self.save()
+
+
+    def location_single_mapping(self, rdfPredicate, djangoField, lang=None):
+        uri = lambda x: x.location_uri
+        return self.base_single_mapping(uri, rdfPredicate, djangoField, lang=None)
+
+    def location_single_reverse(self, g, rdfPred, djField, lang=None):
+        uri = lambda x: x.location_uri
+        self.base_single_reverse(uri, g, rdfPred, djField, lang)
+
+
+    rdf_type = settings.NS.locn.Address
+
+    # Avec la methode normale on traite la adresse car c'est elle qui utilise self.uri
+    # la version dct:Location est traité elle par la surcharge
+    rdf_mapping = (
+        ('single_mapping', (settings.NS.dct.created, 'created'), 'single_reverse'),
+        ('single_mapping', (settings.NS.dct.modified, 'modified'), 'single_reverse'),
+        ('single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'single_reverse'),
+        ('single_mapping', (settings.NS.locn.thoroughfare, 'adr1'), 'single_reverse'),
+        ('single_mapping', (settings.NS.locn.locatorName, 'adr2'), 'single_reverse'),
+        ('single_mapping', (settings.NS.locn.postCode, 'zipcode'), 'single_reverse'),
+        ('single_mapping', (settings.NS.locn.postName, 'city'), 'single_reverse'),
+
+        ('fulladdr_mapping', (settings.NS.locn.fullAddress, ''), 'fulladdr_mapping_reverse'),
+   )
+
+    def fulladdr_mapping(self, rdfPred, djF, lang=None):
+        if self.adr2 == None:
+            addr = "%s\n%s %s\n" % (self.adr1, self.zipcode, self.city)
+        else:
+            addr = "%s\n%s\n%s %s\n" % (self.adr1, self.adr2, self.zipcode, self.city)
+        return [(rdflib.term.URIRef(self.uri), rdfPred, rdflib.term.Literal(addr))]
+
+    def fulladdr_mapping_reverse(self, rdfPred, djF, lang=None):
+        pass
+
+
+    location_rdf_mapping = (
+        ('location_single_mapping', (settings.NS.dct.created, 'created'), 'location_single_reverse'),
+        ('location_single_mapping', (settings.NS.dct.modified, 'modified'), 'location_single_reverse'),
+        ('location_single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'location_single_reverse'),
+        ('location_single_mapping', (settings.NS.locn.geographicName, 'label', 'fr'), 'location_single_reverse'),
+
+        ('wkt_mapping', (settings.NS.locn.geometry, 'point'), 'wkt_mapping_reverse'),
+        ('addr_mapping', (settings.NS.locn.address, 'uri'), 'addr_mapping_reverse'),
+    )
+
+    def wkt_mapping(self, rdfPred, djF, lang=None):
+        return [(rdflib.term.URIRef(self.location_uri), rdfPred, \
+                 rdflib.term.Literal(getattr(self, djF).wkt, datatype=settings.NS.opens.wkt))]
+
+    def wkt_mapping_reverse(self, g, rdfPred, djF, lang=None):
+        values = list(g.objects(rdflib.term.URIRef(self.location_uri), rdfPred))
+        if len(values) == 1:
+            value = str(values[0])
+            setattr(self, djF, value)
+
+    def addr_mapping(self, rdfPred, djF, lang=None):
+        if not self.adr1 == u'':    
+            return [(rdflib.term.URIRef(self.location_uri), rdfPred, rdflib.term.URIRef(self.uri))]
+        else:
+            return []
+
+    def addr_mapping_reverse(self, g, rdfPred, djF, lang=None):
+        pass
+
+
 
 #  si nécessaire
 from django.contrib.contenttypes.models import ContentType
@@ -290,6 +383,65 @@ class Area(URIModel):
 
 
     # http://rdf.insee.fr/geo/COM_03273
+
+    # RDF stuff
+    rdf_type = settings.NS.schema.AdministrativeArea
+    # et aussi dct.Location??
+    rdf_mapping = (
+        ('single_mapping', (settings.NS.dct.created, 'created'), 'single_reverse'),
+        ('single_mapping', (settings.NS.dct.modified, 'modified'), 'single_reverse'),
+        ('single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'single_reverse'),
+        ('single_mapping', (settings.NS.skos.notation, 'reference', 'fr'), 'single_reverse'),
+
+        ('type_mapping', (settings.NS.rdf.type, 'area_type'), 'type_mapping_reverse'),
+        ('wkt_mapping', (settings.NS.locn.geometry, 'polygon'), 'wkt_mapping_reverse'),
+     )
+
+    def type_mapping(self, rdfPred, djF, lang=None):
+        aType = getattr(self, djF)
+        res = [(rdflib.term.URIRef(self.uri), rdfPred, settings.NS.dct.Location)]
+        if aType.txt_idx == 'DEP':
+            res.append((rdflib.term.URIRef(self.uri), rdfPred, settings.NS.geofr.Departement))
+        elif aType.txt_idx == 'COM':
+            res.append((rdflib.term.URIRef(self.uri), rdfPred, settings.NS.geofr.Commune))
+        elif aType.txt_idx == 'REG':
+            res.append((rdflib.term.URIRef(self.uri), rdfPred, settings.NS.geofr.Region))
+        elif aType.txt_idx == 'EPCI':
+            res.append((rdflib.term.URIRef(self.uri), rdfPred, settings.NS.geofr.EPCI))
+        else:
+            pass
+        return res
+
+    def type_mapping_reverse(self, g, rdfPred, djF, lang=None):
+        values = set(g.objects(rdflib.term.URIRef(self.uri), rdfPred))
+        values.remove(self.rdf_type)
+        values.removes(settings.NS.dct.Location)
+        if len(values) == 1:
+            value = values[0]
+            if value == settings.NS.geofr.Departement:
+                setattr(self, djF, AreaType.objects.get(txt_idx='DEP'))
+            elif value == settings.NS.geofr.Commune:
+                setattr(self, djF, AreaType.objects.get(txt_idx='COM'))
+            elif value == settings.NS.geofr.Region:
+                setattr(self, djF, AreaType.objects.get(txt_idx='REG'))
+            elif value == settings.NS.geofr.EPCI:
+                setattr(self, djF, AreaType.objects.get(txt_idx='EPCI'))
+            else:
+                pass
+
+
+    def wkt_mapping(self, rdfPred, djF, lang=None):
+        return [(rdflib.term.URIRef(self.uri), rdfPred, \
+                 rdflib.term.Literal(getattr(self, djF).wkt, datatype=settings.NS.opens.wkt))]
+
+    def wkt_mapping_reverse(self, g, rdfPred, djF, lang=None):
+        values = list(g.objects(rdflib.ter.URIRef(self.uri), rdfPred))
+        if len(values) == 1:
+            value = str(values[0])
+            setattr(self, djF, value)
+
+
+
 
 
 def area_post_save(sender, **kwargs):
