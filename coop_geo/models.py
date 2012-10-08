@@ -45,6 +45,10 @@ class Location(URIModel):
                                blank=True, max_length=5)
     city = models.CharField(verbose_name=_(u"city"), null=True, blank=True,
                             max_length=100)
+    x_code = models.CharField(verbose_name=_(u"x_code"), null=True, blank=True,
+                            max_length=20)
+    country = models.CharField(verbose_name=_(u"country"), null=True, blank=True,
+                            max_length=100)
     area = models.ForeignKey('Area', verbose_name=_(u'area'), blank=True,
                               null=True)
     owner = models.ForeignKey(User, verbose_name=_(u'owner'), blank=True,

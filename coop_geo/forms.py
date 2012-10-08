@@ -14,7 +14,7 @@ import widgets
 class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
-        fields = ('label', 'adr1', 'adr2', 'zipcode', 'city', 'point', 'area')
+        fields = ('label', 'adr1', 'adr2', 'zipcode', 'city', 'x_code', 'point', 'area')
         widgets = {
             'label': forms.TextInput(),
             'point': widgets.LocationPointWidget(),

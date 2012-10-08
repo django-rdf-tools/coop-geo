@@ -28,7 +28,7 @@ class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
         extend = False
         js = ('http://maps.google.com/maps/api/js?sensor=false',
               'js/OpenLayers.js',
-              'js/OpenStreetMap.js',
+              'js/gis/OpenStreetMap.js',
               'js/MapWidget.js',)
         css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css', # on l'a déjà aussi dans Bootstrap --> if...
                        'css/openlayers.css']}
@@ -56,7 +56,7 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
               'http://maps.google.com/maps/api/js?sensor=false',
               #'http://openlayers.org/api/2.10/OpenLayers.js',
               'js/OpenLayers.js',
-              'js/OpenStreetMap.js',
+              'js/gis/OpenStreetMap.js',
               'js/MapWidget.js',)
         css = {'all': ['css/smoothness/jquery-ui-1.8.14.custom.css',
                        'css/openlayers.css']}
@@ -98,7 +98,8 @@ class ChooseLocationWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):
 class PolygonWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
     template_name = 'gis/osm.html'
     map_width = 400
-    areas = Area.get_all()
+    #areas = Area.get_all()
+    areas = None
 
 
 class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
@@ -110,7 +111,7 @@ class ChooseAreaWidget(ff_gis.MultiPolygonWidget, ff_gis.BaseOsmWidget):
         extend = False
         js = (
             'js/OpenLayers.js',
-            'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
+            'js/gis/OpenStreetMap.js',
             'floppyforms/js/MapWidget.js',
         )
         css = {'all': ['css/coop_geo.css',
