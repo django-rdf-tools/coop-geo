@@ -1,3 +1,4 @@
+{% load url from future %}
 {% load i18n %}
 {% load mkrange %}
 <style type="text/css">
@@ -7,11 +8,11 @@
     #{{ attrs.id }}_span_control {width:400px; height:420px;}
     {% if not display_wkt %}#{{ attrs.id }} { display: none; }{% endif %}
     .olControlEditingToolbar .olControlModifyFeatureItemActive {
-        background-image: url("{{ ADMIN_MEDIA_PREFIX }}img/gis/move_vertex_on.png");
+        background-image: url("{{ STATIC_URL }}admin/img/gis/move_vertex_on.png");
         background-repeat: no-repeat;
     }
     .olControlEditingToolbar .olControlModifyFeatureItemInactive {
-        background-image: url("{{ ADMIN_MEDIA_PREFIX }}img/gis/move_vertex_off.png");
+        background-image: url("{{ STATIC_URL }}admin/img/gis/move_vertex_off.png");
         background-repeat: no-repeat;
     }
     .address_results{
@@ -69,7 +70,7 @@
           <strong>{%trans "Click on the choosen location:"%}</strong>
           <ul id='{{attrs.id}}_results'>
           </ul>
-          <p><a href="{% url admin:coop_geo_location_add %}" class="add-another-link" id="add_id_location" onclick="return showAddAnotherPopup(this);">{% trans "Add another location" %}</a></p>
+          <p><a href="{% url 'admin:coop_geo_location_add' %}" class="add-another-link" id="add_id_location" onclick="return showAddAnotherPopup(this);">{% trans "Add another location" %}</a></p>
         </div>
     </div>
 </span>
