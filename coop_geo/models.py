@@ -119,13 +119,11 @@ class Location(URIModel):
 
         return g
 
-
+    # 
     def to_django(self, g):
         for method, arguments, reverse in self.location_rdf_mapping:
             getattr(self, reverse)(g, *arguments)
-        for method, arguments, reverse in self.rdf_mapping:
-            getattr(self, reverse)(g, *arguments)
-        self.save()
+        super(Location, self).to_django(g)
 
 
     def location_single_mapping(self, rdfPredicate, djangoField, lang=None):
