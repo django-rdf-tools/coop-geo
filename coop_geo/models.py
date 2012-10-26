@@ -173,8 +173,11 @@ class Location(URIModel):
     )
 
     def wkt_mapping(self, rdfPred, djF, lang=None):
-        return [(rdflib.term.URIRef(self.location_uri), rdfPred, \
-                 rdflib.term.Literal(getattr(self, djF).wkt, datatype=settings.NS.opens.wkt))]
+        if getattr(self, djF):
+            return [(rdflib.term.URIRef(self.location_uri), rdfPred, \
+                     rdflib.term.Literal(getattr(self, djF).wkt, datatype=settings.NS.opens.wkt))]
+        else:
+            return []
 
     def wkt_mapping_reverse(self, g, rdfPred, djF, lang=None):
         values = list(g.objects(rdflib.term.URIRef(self.location_uri), rdfPred))
