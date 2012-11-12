@@ -152,11 +152,7 @@ class Location(URIModel):
    )
 
     def fulladdr_mapping(self, rdfPred, djF, lang=None):
-        if self.adr2 == None:
-            addr = "%s\n%s %s\n" % (self.adr1, self.zipcode, self.city)
-        else:
-            addr = "%s\n%s\n%s %s\n" % (self.adr1, self.adr2, self.zipcode, self.city)
-        return [(rdflib.term.URIRef(self.uri), rdfPred, rdflib.term.Literal(addr))]
+        return [(rdflib.term.URIRef(self.uri), rdfPred, rdflib.term.Literal(self.__unicode__()))]
 
     def fulladdr_mapping_reverse(self, rdfPred, djF, lang=None):
         pass
