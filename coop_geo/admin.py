@@ -15,6 +15,7 @@ admin.site.register(models.LocationCategory)
 
 class LocationAdmin(admin.ModelAdmin):
     list_display = ['label', 'adr1', 'adr2', 'zipcode', 'city', 'has_point']
+    list_display_links = ['label', 'adr1', 'adr2']
     search_fields = ['label', 'adr1', 'adr2', 'zipcode', 'city']
     form = forms.LocationForm
 admin.site.register(models.Location, LocationAdmin)

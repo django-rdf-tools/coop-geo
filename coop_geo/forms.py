@@ -24,8 +24,7 @@ class LocationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         if not cleaned_data.get('point') and not cleaned_data.get('area'):
-            raise ValidationError(u"You must at least set a point or choose "
-                                  u"an area.")
+            raise ValidationError(_(u"You must at least set a point or choose an area."))
         return cleaned_data
 
 
