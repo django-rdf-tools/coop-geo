@@ -58,6 +58,7 @@ class Location(URIModel):
 
     objects = models.GeoManager()
 
+    is_ref_center = models.BooleanField(default=False)
 
     #related = RelatedObjectsDescriptor()
 
