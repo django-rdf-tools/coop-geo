@@ -255,7 +255,7 @@ class Area(URIModel):
     #  overwrite to deal with INSEE reference
     def init_uri(self):
         if self.reference:
-            self.uri_mode = URI_MODE.IMPORTED
+            self.uri_mode = URI_MODE.COMMON
             self.uri = settings.RDF_NAMESPACES['geofr'] +  \
                 AreaType.objects.get(id=self.area_type_id).txt_idx + \
                 '_' + self.reference
