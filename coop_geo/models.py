@@ -112,7 +112,7 @@ class Location(URIModel):
     def toRdfGraph(self):
         g = rdflib.Graph()
         g.add((rdflib.term.URIRef(self.location_uri), settings.NS.rdf.type, settings.NS.dct.Location))
-        for method, arguments, reverse in self.location_rdf_mapping:
+        for method, arguments, reverse in self.location_base_mapping:
             for triple in getattr(self, method)(*arguments):
                 g.add(triple)
         if not self.adr1 == u'': 
@@ -122,7 +122,7 @@ class Location(URIModel):
 
     # 
     def to_django(self, g):
-        for method, arguments, reverse in self.location_rdf_mapping:
+        for method, arguments, reverse in self.location_base_mapping:
             getattr(self, reverse)(g, *arguments)
         super(Location, self).to_django(g)
 
@@ -140,7 +140,7 @@ class Location(URIModel):
 
     # Avec la methode normale on traite la adresse car c'est elle qui utilise self.uri
     # la version dct:Location est traité elle par la surcharge
-    rdf_mapping = (
+    base_mapping = [
         ('single_mapping', (settings.NS.dct.created, 'created'), 'single_reverse'),
         ('single_mapping', (settings.NS.dct.modified, 'modified'), 'single_reverse'),
         ('single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'single_reverse'),
@@ -150,7 +150,7 @@ class Location(URIModel):
         ('single_mapping', (settings.NS.locn.postName, 'city'), 'single_reverse'),
 
         ('fulladdr_mapping', (settings.NS.locn.fullAddress, ''), 'fulladdr_mapping_reverse'),
-   )
+   ]
 
     def fulladdr_mapping(self, rdfPred, djF, datatype=None, lang=None):
         return [(rdflib.term.URIRef(self.uri), rdfPred, rdflib.term.Literal(self.__unicode__()))]
@@ -159,7 +159,7 @@ class Location(URIModel):
         pass
 
 
-    location_rdf_mapping = (
+    location_base_mapping = [
         ('location_single_mapping', (settings.NS.dct.created, 'created'), 'location_single_reverse'),
         ('location_single_mapping', (settings.NS.dct.modified, 'modified'), 'location_single_reverse'),
         ('location_single_mapping', (settings.NS.rdfs.label, 'label', None, 'fr'), 'location_single_reverse'),
@@ -167,7 +167,7 @@ class Location(URIModel):
 
         ('wkt_mapping', (settings.NS.locn.geometry, 'point'), 'wkt_mapping_reverse'),
         ('addr_mapping', (settings.NS.locn.address, 'uri'), 'addr_mapping_reverse'),
-    )
+    ]
 
     def wkt_mapping(self, rdfPred, djF, datatype=None, lang=None):
         if getattr(self, djF):
@@ -389,7 +389,7 @@ class Area(URIModel):
     # RDF stuff
     rdf_type = settings.NS.schema.AdministrativeArea
     # et aussi dct.Location??
-    rdf_mapping = (
+    base_mapping = [
         ('single_mapping', (settings.NS.dct.created, 'created'), 'single_reverse'),
         ('single_mapping', (settings.NS.dct.modified, 'modified'), 'single_reverse'),
         ('single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'single_reverse'),
@@ -397,7 +397,7 @@ class Area(URIModel):
 
         ('type_mapping', (settings.NS.rdf.type, 'area_type'), 'type_mapping_reverse'),
         ('wkt_mapping', (settings.NS.locn.geometry, 'polygon'), 'wkt_mapping_reverse'),
-     )
+     ]
 
     def type_mapping(self, rdfPred, djF, lang=None):
         aType = getattr(self, djF)
