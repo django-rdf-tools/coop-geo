@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
 from django.test import TestCase
 from django.utils import simplejson as json
 from django.utils.http import urlquote
 from django.core.exceptions import ValidationError
+from django.core.management import call_command
 from django.core.urlresolvers import reverse, resolve
 from django.contrib.auth.models import User, Permission
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.geos.collections import GeometryCollection
 
+import coop_geo
 from coop_geo.models import Location, Area, AreaRelations, AreaType
 
 
@@ -196,4 +200,15 @@ class LocationTest(TestCase):
         self.assertEqual(response['Content-Type'], 'application/json')
         json_response = json.loads(response.content)
         self.assertEqual(len(json_response), 1)
+
+class CommandsTestCase(TestCase):
+    def setUp(self):
+        self.area_types = set_area_types()
+
+    def test_import_shape(self):
+        """Test import_shapefile command."""
+        args = [os.sep.join([os.path.abspath(coop_geo.__path__[0]), 'tests',
+                             'sample_countries-shapefile.zip']),
+                'default', 'NAME', 'ISO3']
+        call_command('import_shapefile', *args)
 
