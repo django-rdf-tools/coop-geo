@@ -210,5 +210,12 @@ class CommandsTestCase(TestCase):
         args = [os.sep.join([os.path.abspath(coop_geo.__path__[0]), 'tests',
                              'sample_countries-shapefile.zip']),
                 'default', 'NAME', 'ISO3']
-        call_command('import_shapefile', *args)
+        options = {'quiet':True}
+        call_command('import_shapefile', *args, **options)
+        self.assertEqual(Area.objects.count(), 2)
+        # test update
+        call_command('import_shapefile', *args, **options)
+        self.assertEqual(Area.objects.count(), 2)
+
+
 

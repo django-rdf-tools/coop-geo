@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+from optparse import make_option
 import tempfile
-import sys
 import zipfile
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.gdal import DataSource
@@ -14,10 +14,17 @@ from coop_geo import models
 class Command(BaseCommand):
     args = '<zipped_shapefile> <areatype_idx> [<name_col> <reference_col>]'
     help = 'Import area from a shapefile'
+    option_list = BaseCommand.option_list + (
+        make_option('-q', '--quiet',
+            action="store_true",
+            dest="quiet", default=False,
+            help="no output"),
+        )
 
     def handle(self, *args, **options):
         if not args or len(args) < 2:
             raise CommandError(u"Args missing")
+        quiet = 'quiet' in options and options['quiet']
         zipped_shapefile = args[0]
         areatype_idx = args[1]
         name_col = args[2] if len(args) > 2 else ''
@@ -62,7 +69,8 @@ class Command(BaseCommand):
                     srid = srs.GetAuthorityCode(None)
             except ImportError:
                 srid = 4326
-                sys.stdout.write('WARN: module gdal is not installed. SRID '
+                if not quiet:
+                    self.stdout.write('WARN: module gdal is not installed. SRID '
                         'cannot be read from proj\n      file. Default to '
                         'WGS84 projection (latitude/longitude).\n')
         ds = DataSource(shpfilename)
@@ -105,5 +113,6 @@ class Command(BaseCommand):
                 updated_nb += 1
             else:
                 created_nb += 1
-        self.stdout.write('Import done:\n * %d items created\n '
+        if not quiet:
+            self.stdout.write('Import done:\n * %d items created\n '
                           '* %d items updated\n' % (created_nb, updated_nb))
