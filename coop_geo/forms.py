@@ -52,7 +52,7 @@ class AreaFormForInline(forms.ModelForm):
         super(AreaFormForInline, self).__init__(*args, **kwargs)
         if 'location' in self.fields:
             associated_obj = self.fields['location']._associated_obj
-            if associated_obj:
+            if associated_obj and hasattr(associated_obj, 'located'):
                 self.fields['location'].widget = widgets.ChooseAreaWidget(
                             available_locations=[loc.location
                                         for loc in associated_obj.located.all()])
