@@ -127,13 +127,13 @@ class Location(URIModel):
         super(Location, self).to_django(g)
 
 
-    def location_single_mapping(self, rdfPredicate, djangoField, lang=None):
+    def location_single_mapping(self, rdfPredicate, djangoField, datatype=None, lang=None):
         uri = lambda x: x.location_uri
-        return self.base_single_mapping(uri, rdfPredicate, djangoField, lang=None)
+        return self.base_single_mapping(uri, rdfPredicate, djangoField, datatype, lang)
 
-    def location_single_reverse(self, g, rdfPred, djField, lang=None):
+    def location_single_reverse(self, g, rdfPred, djField, datatype=None, lang=None):
         uri = lambda x: x.location_uri
-        self.base_single_reverse(uri, g, rdfPred, djField, lang)
+        self.base_single_reverse(uri, g, rdfPred, djField, datatype, lang)
 
 
     rdf_type = settings.NS.locn.Address
@@ -152,43 +152,43 @@ class Location(URIModel):
         ('fulladdr_mapping', (settings.NS.locn.fullAddress, ''), 'fulladdr_mapping_reverse'),
    ]
 
-    def fulladdr_mapping(self, rdfPred, djF, lang=None):
+    def fulladdr_mapping(self, rdfPred, djF, datatype=None, lang=None):
         return [(rdflib.term.URIRef(self.uri), rdfPred, rdflib.term.Literal(self.__unicode__()))]
 
-    def fulladdr_mapping_reverse(self, rdfPred, djF, lang=None):
+    def fulladdr_mapping_reverse(self, rdfPred, djF, datatype=None, lang=None):
         pass
 
 
     location_base_mapping = [
         ('location_single_mapping', (settings.NS.dct.created, 'created'), 'location_single_reverse'),
         ('location_single_mapping', (settings.NS.dct.modified, 'modified'), 'location_single_reverse'),
-        ('location_single_mapping', (settings.NS.rdfs.label, 'label', 'fr'), 'location_single_reverse'),
-        ('location_single_mapping', (settings.NS.locn.geographicName, 'label', 'fr'), 'location_single_reverse'),
+        ('location_single_mapping', (settings.NS.rdfs.label, 'label', None, 'fr'), 'location_single_reverse'),
+        ('location_single_mapping', (settings.NS.locn.geographicName, 'label', None, 'fr'), 'location_single_reverse'),
 
         ('wkt_mapping', (settings.NS.locn.geometry, 'point'), 'wkt_mapping_reverse'),
         ('addr_mapping', (settings.NS.locn.address, 'uri'), 'addr_mapping_reverse'),
     ]
 
-    def wkt_mapping(self, rdfPred, djF, lang=None):
+    def wkt_mapping(self, rdfPred, djF, datatype=None, lang=None):
         if getattr(self, djF):
             return [(rdflib.term.URIRef(self.location_uri), rdfPred, \
                      rdflib.term.Literal(getattr(self, djF).wkt, datatype=settings.NS.opens.wkt))]
         else:
             return []
 
-    def wkt_mapping_reverse(self, g, rdfPred, djF, lang=None):
+    def wkt_mapping_reverse(self, g, rdfPred, djF, datatype=None, lang=None):
         values = list(g.objects(rdflib.term.URIRef(self.location_uri), rdfPred))
         if len(values) == 1:
             value = str(values[0])
             setattr(self, djF, value)
 
-    def addr_mapping(self, rdfPred, djF, lang=None):
+    def addr_mapping(self, rdfPred, djF, datatype=None, lang=None):
         if not self.adr1 == u'':    
             return [(rdflib.term.URIRef(self.location_uri), rdfPred, rdflib.term.URIRef(self.uri))]
         else:
             return []
 
-    def addr_mapping_reverse(self, g, rdfPred, djF, lang=None):
+    def addr_mapping_reverse(self, g, rdfPred, djF, datatype=None, lang=None):
         pass
 
 
