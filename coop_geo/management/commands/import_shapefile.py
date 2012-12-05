@@ -136,3 +136,22 @@ class Command(BaseCommand):
         if not quiet:
             self.stdout.write('Import done:\n * %d items created\n '
                           '* %d items updated\n' % (created_nb, updated_nb))
+
+
+"""
+
+http://www.fao.org/countryprofiles/geoinfo/ws/allCountries/FR/
+
+import elementtree.ElementTree as ET
+tree = ET.parse("country_names.xml")
+
+for el in tree.findall('self_governing'):
+    name_fr = el.find('nameListFR').text
+    iso = el.find('codeISO3').text
+    if Area.objects.filter(reference=iso).exists():
+        a = Area.objects.get(reference=iso)
+        a.label = name_fr
+        a.save()
+
+
+"""
