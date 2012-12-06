@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from coop.utils.autocomplete_admin import InlineAutocompleteAdmin
 from django.contrib.contenttypes.generic import GenericTabularInline
 from coop.utils.autocomplete_admin import FkAutocompleteAdmin
+from django.db.models.loading import get_model
 
 import models
 import forms
@@ -18,7 +19,7 @@ class LocationAdmin(admin.ModelAdmin):
     list_display_links = ['label', 'adr1', 'adr2']
     search_fields = ['label', 'adr1', 'adr2', 'zipcode', 'city']
     form = forms.LocationForm
-admin.site.register(models.Location, LocationAdmin)
+# admin.site.register(models.Location, LocationAdmin)
 
 
 class AreaTypeAdmin(admin.ModelAdmin):
@@ -44,14 +45,15 @@ class AreaChildRelInline(InlineAutocompleteAdmin):
 
 
 class AreaAdmin(FkAutocompleteAdmin):  # FkAutocompleteAdmin too but...
-    model = models.Area
+    # model = models.Area
+    model = get_model('coop_local', 'Area')
     list_display = ['label', 'reference', 'area_type', ]
     list_filter = ['area_type', ]
     search_fields = ['label', 'reference']
     form = forms.AreaForm
     inlines = [AreaChildRelInline]
     related_search_fields = {'default_location': ('label', 'adr1', 'city')}
-admin.site.register(models.Area, AreaAdmin)
+# admin.site.register(models.Area, AreaAdmin)
 
 
 class LocatedInline(GenericTabularInline, InlineAutocompleteAdmin):

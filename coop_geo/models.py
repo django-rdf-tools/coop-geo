@@ -66,6 +66,11 @@ class Location(URIModel):
     class Meta:
         verbose_name = _(u'Location')
         verbose_name_plural = _(u'Locations')
+        abstract = True
+        app_label = 'coop_local'
+
+
+
 
     def __unicode__(self):
         lbl = self.label
@@ -200,7 +205,7 @@ from django.contrib.contenttypes import generic
 
 class Located(models.Model):
     # things which are located
-    location = models.ForeignKey(Location, null=True, blank=True,
+    location = models.ForeignKey('coop_local.Location', null=True, blank=True,
                                  verbose_name=_(u"location"))
     main_location = models.BooleanField(default=False,
                                  verbose_name=_(u"main venue"))
@@ -218,6 +223,36 @@ class Located(models.Model):
         verbose_name_plural = _(u'Located items')
 
 AREA_DEFAULT_LOCATION_LBL = _(u"%s (center)")
+
+
+class AreaRelations(models.Model):
+    """
+    Relations between areas.
+    """
+    parent = models.ForeignKey('coop_local.Area', verbose_name=_(u"inside"),
+                               related_name='child_rels')
+    child = models.ForeignKey('coop_local.Area', verbose_name=_(u"included"),
+                              related_name='parent_rels')
+
+    class Meta:
+        verbose_name = _(u"Area relation")
+        verbose_name_plural = _(u"Area relations")
+
+    def __unicode__(self):
+        return u" - ".join((unicode(self.parent), unicode(self.child)))
+
+    def save(self, *args, **kwargs):
+        if self.child == self.parent:
+            raise ValidationError(_(u"Child and Parent have to be different."))
+        return super(AreaRelations, self).save(*args, **kwargs)
+
+
+def arearel_post_save(sender, **kwargs):
+    if not kwargs['instance']:
+        return
+    arearel = kwargs['instance']
+    arearel.parent.update_from_childs()
+post_save.connect(arearel_post_save, sender=AreaRelations)
 
 
 class AreaType(models.Model):
@@ -239,10 +274,10 @@ class Area(URIModel):
     reference = models.CharField(max_length=150, verbose_name=_(u"reference"),
                                  blank=True, null=True,
                                  help_text=_(u"SI ce n'est pas une référence INSEE, ne mettez rien ici."))
-    default_location = models.ForeignKey(Location, blank=True, null=True,
+    default_location = models.ForeignKey('coop_local.Location', blank=True, null=True,
             verbose_name=_(u"default location"), related_name='associated_area')
-    related_areas = models.ManyToManyField('Area',
-            verbose_name=_(u"related area"), through='AreaRelations')
+    related_areas = models.ManyToManyField('coop_local.Area',
+            verbose_name=_(u"related area"), through=AreaRelations)
     area_type = models.ForeignKey(AreaType, verbose_name=_(u"type"))
     polygon = models.MultiPolygonField(_(u"polygon"), blank=True, null=True,
                                   srid=settings.COOP_GEO_EPSG_PROJECTION)
@@ -267,6 +302,9 @@ class Area(URIModel):
     class Meta:
         verbose_name = _(u'Area')
         verbose_name_plural = _(u'Areas')
+        abstract = True
+        app_label = 'coop_local'
+
 
     def __unicode__(self):
         return self.label
@@ -450,7 +488,10 @@ def area_post_save(sender, **kwargs):
     if not kwargs['instance']:
         return
     area = kwargs['instance']
+    if not isinstance(area, Area):
+        return
     if not area.default_location and area.polygon:
+        from coop_local.models import Location
         datas = {'point': area.polygon.centroid,
                  'label': AREA_DEFAULT_LOCATION_LBL % area.label}
         area.default_location = Location.objects.create(**datas)
@@ -463,7 +504,7 @@ post_save.connect(area_post_save, sender=Area)
 
 
 class AreaLink(models.Model):
-    location = models.ForeignKey(Area, null=True, blank=True,  # TODO devrait s'appeler area
+    location = models.ForeignKey('coop_local.Area', null=True, blank=True,  # TODO devrait s'appeler area
                       verbose_name=_(u'area'))
     # things which are in an area
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
@@ -479,32 +520,4 @@ class AreaLink(models.Model):
         verbose_name_plural = _(u'Linked areas')
 
 
-class AreaRelations(models.Model):
-    """
-    Relations between areas.
-    """
-    parent = models.ForeignKey(Area, verbose_name=_(u"inside"),
-                               related_name='child_rels')
-    child = models.ForeignKey(Area, verbose_name=_(u"included"),
-                              related_name='parent_rels')
-
-    class Meta:
-        verbose_name = _(u"Area relation")
-        verbose_name_plural = _(u"Area relations")
-
-    def __unicode__(self):
-        return u" - ".join((unicode(self.parent), unicode(self.child)))
-
-    def save(self, *args, **kwargs):
-        if self.child == self.parent:
-            raise ValidationError(_(u"Child and Parent have to be different."))
-        return super(AreaRelations, self).save(*args, **kwargs)
-
-
-def arearel_post_save(sender, **kwargs):
-    if not kwargs['instance']:
-        return
-    arearel = kwargs['instance']
-    arearel.parent.update_from_childs()
-post_save.connect(arearel_post_save, sender=AreaRelations)
 
