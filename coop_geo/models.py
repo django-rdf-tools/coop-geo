@@ -107,7 +107,7 @@ class Location(URIModel):
     # RDF stuff
     @property
     def location_uri(self):
-        return 'http://data.economie-solidaire.fr/id/location/%s' % self.geohash
+        return 'http://thess.economie-solidaire.fr/id/location/%s' % self.geohash
 
     def toRdfGraph(self):
         g = rdflib.Graph()
