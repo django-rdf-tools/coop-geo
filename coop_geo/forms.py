@@ -43,15 +43,16 @@ class AreaForm(forms.ModelForm):
 class AreaFormForInline(forms.ModelForm):
     class Meta:
         model = models.Located
-        fields = ('location',)
+        fields = ('location',)  # TODO ça fout le oaï que ça s'appelle location on comprend plus rien
         widgets = {
             'location': widgets.ChooseAreaWidget(),
         }
 
     def __init__(self, *args, **kwargs):
         super(AreaFormForInline, self).__init__(*args, **kwargs)
-        associated_obj = self.fields['location']._associated_obj
-        if associated_obj:
-            self.fields['location'].widget = widgets.ChooseAreaWidget(
-                        available_locations=[loc.location
-                                    for loc in associated_obj.located.all()])
+        if 'location' in self.fields:
+            associated_obj = self.fields['location']._associated_obj
+            if associated_obj and hasattr(associated_obj, 'located'):
+                self.fields['location'].widget = widgets.ChooseAreaWidget(
+                            available_locations=[loc.location
+                                        for loc in associated_obj.located.all()])
