@@ -85,7 +85,7 @@ class Migration(SchemaMigration):
             'update_auto': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'uri': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'uri_mode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'default': "'4E4Jj5KpK3y4zDQpdk84aD'", 'max_length': '50', 'unique': 'True', 'null': 'True'})
+            'uuid': ('django.db.models.fields.CharField', [], {'default': "'k5VnnwZLJQ2NuKi9qqN4aL'", 'max_length': '50', 'unique': 'True', 'null': 'True'})
         },
         'coop_geo.arealink': {
             'Meta': {'object_name': 'AreaLink'},
@@ -133,7 +133,7 @@ class Migration(SchemaMigration):
             'sites': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sites.Site']", 'symmetrical': 'False'}),
             'uri': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'uri_mode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'default': "'DaQ4MuLczXJyoiWUvupZ3P'", 'max_length': '50', 'unique': 'True', 'null': 'True'}),
+            'uuid': ('django.db.models.fields.CharField', [], {'default': "'C3gWUXQM3WCvNFvdhDiqve'", 'max_length': '50', 'unique': 'True', 'null': 'True'}),
             'x_code': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'zipcode': ('django.db.models.fields.CharField', [], {'max_length': '5', 'null': 'True', 'blank': 'True'})
         },
