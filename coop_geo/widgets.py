@@ -13,7 +13,8 @@ from coop.utils.autocomplete_admin import FkSearchInput
 
 import floppyforms.gis as ff_gis
 
-from models import Area, AreaType, AreaLink, Location
+from models import AreaType
+from coop_local.models import Area, Location
 
 
 class LocationPointWidget(ff_gis.PointWidget, ff_gis.BaseOsmWidget):

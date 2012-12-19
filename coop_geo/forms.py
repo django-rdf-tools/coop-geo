@@ -3,6 +3,7 @@
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
+from django.db.models.loading import get_model
 
 from chosen import widgets as chosenwidgets
 
@@ -13,7 +14,9 @@ import widgets
 
 class LocationForm(forms.ModelForm):
     class Meta:
-        model = models.Location
+        # model = models.Location
+        model = get_model('coop_local', 'Location')
+
         fields = ('label', 'adr1', 'adr2', 'zipcode', 'city', 'x_code', 'point', 'area')
         widgets = {
             'label': forms.TextInput(),
@@ -30,7 +33,8 @@ class LocationForm(forms.ModelForm):
 
 class AreaForm(forms.ModelForm):
     class Meta:
-        model = models.Area
+        # model = models.Area
+        model = get_model('coop_local', 'Area')
         fields = ('label', 'area_type', 'reference', 'polygon', 'update_auto',
                   'default_location',)
         widgets = {

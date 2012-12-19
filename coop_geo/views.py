@@ -5,7 +5,7 @@ from django import http
 from django.utils import simplejson as json
 from django.core import serializers
 from django.views.generic.list import BaseListView
-from models import Location, Area
+from coop_local.models import Location, Area
 
 
 class JSONResponseMixin(object):
