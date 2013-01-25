@@ -13,6 +13,7 @@ from django_extensions.db import fields as exfields
 from coop.models import URIModel, URI_MODE
 import Geohash
 import rdflib
+import simplejson
 
 
 class LocationCategory(models.Model):
@@ -196,6 +197,15 @@ class Location(URIModel):
     def addr_mapping_reverse(self, g, rdfPred, djF, datatype=None, lang=None):
         pass
 
+    def geoJson(self):
+        json = {
+           "type": "Feature",
+            "properties": {},
+                "geometry":  simplejson.loads(self.point.geojson)
+        }
+        return json
+
+
 
 
 #  si nécessaire
@@ -221,6 +231,21 @@ class Located(models.Model):
     class Meta:
         verbose_name = _(u'Located item')
         verbose_name_plural = _(u'Located items')
+
+
+    def geoJson(self):
+        if self.category:
+            popup = self.category.label
+            category = self.category.label.encode("utf-8")
+        elif self.content_object:
+            popup = self.content_object.label()
+            category = ''
+        json = self.location.geoJson()
+        json["properties"]["category"] = category
+        json["properties"]["main_location"] = self.main_location
+        json["properties"]["popupContent"] = u"<h4>" + popup + u"</h4><p></p>"
+        return json
+
 
 AREA_DEFAULT_LOCATION_LBL = _(u"%s (center)")
 
@@ -308,6 +333,16 @@ class Area(URIModel):
 
     def __unicode__(self):
         return self.label
+
+    def geoJson(self):
+        json = {
+           "type": "Feature",
+            "properties": {
+                    "area_type": self.area_type.label.encode("utf-8"),
+                    },
+                "geometry":  simplejson.loads(self.polygon.geojson)
+        }
+        return json
 
     def add_parent(self, parent):
         if parent == self:
@@ -518,6 +553,17 @@ class AreaLink(models.Model):
     class Meta:
         verbose_name = _(u'Linked area')
         verbose_name_plural = _(u'Linked areas')
+
+    def geoJson(self):
+        if self.content_object:
+            label = self.content_object.label()
+        else:
+            label = ""
+        json = self.location.geoJson()
+        json["properties"]["label"] = label.encode("utf-8")
+        json["properties"]["popupContent"] = u"<h4>" + label + u"</h4><p></p>"
+        return json
+
 
 
 
