@@ -5,6 +5,7 @@ import os
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from geodjangofla.models import Commune, Departement, Canton
+from coop_local.models import Area, Location
 from coop_geo import models
 
 
@@ -49,15 +50,15 @@ class Command(BaseCommand):
                 raise CommandError("Le numero de departement %s n'est présent "\
                                    "dans la base geofla." % dpt)
             departement = departement.all()[0]
-            ref_dpt = models.Area.objects.filter(reference=dpt,
+            ref_dpt = Area.objects.filter(reference=dpt,
                                            area_type=self._get_area_type('DEP'))
             def_loc = {'city': departement.nom_chf,
                        'label': u"Préfecture",
                        'point': departement.chf_lieu,
                        'is_ref_center': True}
             if not ref_dpt.count():
-                loc = models.Location.objects.create(**def_loc)
-                ref_dpt = models.Area.objects.create(**{
+                loc = Location.objects.create(**def_loc)
+                ref_dpt = Area.objects.create(**{
                                 'label': departement.nom_dept,
                                 'reference': dpt,
                                 'polygon': departement.limite,
@@ -74,7 +75,7 @@ class Command(BaseCommand):
 
             # for idx, canton in enumerate(Canton.objects.filter(code_dept=dpt)):
             #     code_canton = str(canton.code_dept + canton.code_cant)
-            #     ref = models.Area.objects.filter(reference=code_canton,
+            #     ref = Area.objects.filter(reference=code_canton,
             #                               area_type=self._get_area_type('CAN'))
             #     def_loc = {'city':canton.nom_chf,
             #                'label':u"Chef-lieu de canton",
@@ -89,8 +90,8 @@ class Command(BaseCommand):
             #             setattr(ref.default_location, k, def_loc[k])
             #         ref.default_location.save()
             #     else:
-            #         loc = models.Location.objects.create(**def_loc)
-            #         ref = models.Area.objects.create(**{
+            #         loc = Location.objects.create(**def_loc)
+            #         ref = Area.objects.create(**{
             #                           'label':str('CANTON DE '+canton.nom_chf),
             #                           'reference':code_canton,
             #                           'polygon':canton.limite,
@@ -99,7 +100,7 @@ class Command(BaseCommand):
 
             for idx, commune in enumerate(Commune.objects.filter(
                                           insee_com__startswith=dpt)):
-                ref = models.Area.objects.filter(reference=commune.insee_com,
+                ref = Area.objects.filter(reference=commune.insee_com,
                                             area_type=self._get_area_type('COM'))
                 def_loc = {'city': commune.nom_comm,
                            'label': u"Mairie",
@@ -116,8 +117,8 @@ class Command(BaseCommand):
                         setattr(ref.default_location, k, def_loc[k])
                     ref.default_location.save()
                 else:
-                    loc = models.Location.objects.create(**def_loc)
-                    ref = models.Area.objects.create(**{
+                    loc = Location.objects.create(**def_loc)
+                    ref = Area.objects.create(**{
                                           'label': commune.nom_comm,
                                           'reference': commune.insee_com,
                                           'polygon': commune.limite,

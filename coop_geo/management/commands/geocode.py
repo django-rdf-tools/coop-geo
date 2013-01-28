@@ -3,10 +3,8 @@
 
 import os, urllib, urllib2, time, json, random
 from optparse import make_option
-
 from django.core.management.base import BaseCommand, CommandError
-
-from coop_geo import models
+from coop_local.models import Location
 
 GMAP_URL = "http://maps.googleapis.com/maps/api/geocode/json?address=%s"\
            "&sensor=false"
@@ -19,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         connection_failed, no_response, doubles = [], [], []
         many_responses, success = [], []
-        locations = models.Location.objects.filter(point__isnull=True,
+        locations = Location.objects.filter(point__isnull=True,
                                                    city__isnull=False)
         nb_locations = locations.count()
         for idx, location in enumerate(locations.all()):
@@ -63,7 +61,7 @@ class Command(BaseCommand):
             wkt = 'SRID=4326;POINT (%s %s)' % (latlon['lng'], latlon['lat'])
             location.point = wkt
             location.save()
-            if models.Location.objects.filter(point=wkt).count() > 1:
+            if Location.objects.filter(point=wkt).count() > 1:
                 doubles.append(unicode(location) + \
                                    u" - %d" % location.id)
             success.append(unicode(location) + u" (%d)" % location.id)
