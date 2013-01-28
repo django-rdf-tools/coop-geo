@@ -198,12 +198,13 @@ class Location(URIModel):
         pass
 
     def geoJson(self):
-        json = {
-           "type": "Feature",
-            "properties": {},
-                "geometry":  simplejson.loads(self.point.geojson)
-        }
-        return json
+        if self.point:
+            json = {
+               "type": "Feature",
+                "properties": {},
+                    "geometry":  simplejson.loads(self.point.geojson)
+            }
+            return json
 
 
 
@@ -335,14 +336,15 @@ class Area(URIModel):
         return self.label
 
     def geoJson(self):
-        json = {
-           "type": "Feature",
-            "properties": {
-                    "area_type": self.area_type.label.encode("utf-8"),
-                    },
-                "geometry":  simplejson.loads(self.polygon.geojson)
-        }
-        return json
+        if self.polygon:
+            json = {
+               "type": "Feature",
+                "properties": {
+                        "area_type": self.area_type.label.encode("utf-8"),
+                        },
+                    "geometry":  simplejson.loads(self.polygon.geojson)
+            }
+            return json
 
     def add_parent(self, parent):
         if parent == self:
