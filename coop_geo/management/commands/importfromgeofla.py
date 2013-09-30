@@ -123,7 +123,7 @@ class Command(BaseCommand):
                                           'reference': commune.insee_com,
                                           'polygon': commune.limite,
                                           # 'default_location': loc,
-                                          'area_type': AreaType.objects.get(txt_idx='COM')})
+                                          'area_type_id': AreaType.objects.get(txt_idx='COM').id})
 
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
