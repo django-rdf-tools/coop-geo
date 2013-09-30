@@ -13,7 +13,7 @@ import zipfile
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import MultiPolygon
-
+from coop_local.models import Area
 from coop_geo import models
 
 class Command(BaseCommand):
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 continue
             values = {'polygon':'SRID=%s;%s' % (srid, geom.wkt),
                       'label':feat.get(name_col).decode('iso-8859-15')}
-            area, created = models.Area.objects.get_or_create(
+            area, created = Area.objects.get_or_create(
                     area_type=areatype,
                     reference=feat.get(reference_col).decode('iso-8859-15'),
                     defaults=values)

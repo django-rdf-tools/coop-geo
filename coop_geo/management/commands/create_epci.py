@@ -6,6 +6,7 @@ import coop_geo
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from coop_geo import models
+from coop_local.models import Area
 import csv
 import re
 
@@ -38,23 +39,23 @@ class Command(BaseCommand):
             p = re.compile('\d{2}' + str(dpt) + '\d{5}')
             for row in rows:
                 if p.match(row[0]):
-                    cc, created = models.Area.objects.get_or_create(
+                    cc, created = Area.objects.get_or_create(
                             reference=row[0],
                             defaults={  'label': row[1].decode('utf-8'),
                                         'update_auto': True,
                                         'area_type': epci})
                     if created:
-                        self.stdout.write(u'Zone créée : %s\n' % row[1].decode('utf-8'))
+                        self.stdout.write(u'Zone créée : %s\n'.encode('utf-8') % row[1])
                     communes = csv.reader(open(os.path.abspath(COOP_GEO_PATH + '/epci/communes.csv'), 'rb'), delimiter=';')
                     for comm in communes:
                         if cc.reference == comm[1]:
                             try:
-                                commune = models.Area.objects.get(reference=comm[0])
+                                commune = Area.objects.get(reference=comm[0])
                             except:
-                                self.stdout.write(u'ERREUR : la commune avec le code INSEE %s n\'a pas été trouvée\n' % comm[0])
+                                self.stdout.write(u'ERREUR : la commune avec le code INSEE %s n\'a pas été trouvée\n'.encode('utf-8') % comm[0].encode('utf-8'))
                             rel, created = models.AreaRelations.objects.get_or_create(parent=cc, child=commune)
                             if created:
-                                self.stdout.write(u'Relation %s <--> %s créée' % (cc, commune))
+                                self.stdout.write(u'Relation %s <--> %s créée\n'.encode('utf-8') % (cc, commune))
 
                 #self.stdout.write('\n')
-        self.stdout.write(u'\n*** Import terminé ***\n\n')
+        self.stdout.write(u'\n*** Import terminé ***\n\n'.encode('utf-8'))

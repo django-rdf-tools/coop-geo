@@ -6,6 +6,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from geodjangofla.models import Commune, Departement, Region
 from coop_geo import models
+from coop_local.models import Area
 
 class Command(BaseCommand):
     args = '<numero_departements>'
@@ -35,9 +36,9 @@ class Command(BaseCommand):
 
         for reg in Region.objects.all():
 
-            self.stdout.write(u'- Région : %s\n' % reg.nom_region)
+            self.stdout.write(u"- Region : %s\n" % reg.nom_region)
 
-            region,cr = models.Area.objects.get_or_create(
+            region,cr = Area.objects.get_or_create(
                     reference=reg.code_reg,
                     area_type=self._get_area_type('REG'),
                     defaults={  'label': reg.nom_region,
@@ -47,7 +48,7 @@ class Command(BaseCommand):
 
             for geodept in Departement.objects.filter(region_id=reg.code_reg):
 
-                dept,cd = models.Area.objects.get_or_create(
+                dept,cd = Area.objects.get_or_create(
                     area_type=self._get_area_type('DEP'),
                     reference=geodept.code_dept,
                     defaults={  'label': geodept.nom_dept,
@@ -56,7 +57,7 @@ class Command(BaseCommand):
                                 'area_type': self._get_area_type('DEP')})
 
                 region.add_child(dept)
-                self.stdout.write(u'\t- Département : %s\n' % dept.label)
+                self.stdout.write(u'\t- Departement : %s\n' % dept.label)
 
 
             self.stdout.write(u'\n\n')

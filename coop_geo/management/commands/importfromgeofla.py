@@ -5,8 +5,8 @@ import os
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from geodjangofla.models import Commune, Departement, Canton
-from coop_geo.models import AreaType
 from coop_local.models import Area, Location
+from coop_geo import models
 
 
 class Command(BaseCommand):
