@@ -20,16 +20,16 @@ class Command(BaseCommand):
             help="force la mise a jour"),
         )
 
-    def _get_area_type(self, mnemonic):
-        if not hasattr(self, 'area_type'):
-            self.area_type = {}
-            for k, lbl in (('DEP', 'Départment'),
-                           #('CAN', 'Canton'),
-                           ('COM', 'Ville'),
-                           ('REG', 'Région')):
-                self.area_type[k], created = AreaType.objects.get_or_create(
-                                     txt_idx=k, defaults={'label': lbl})
-        return self.area_type[mnemonic]
+    # def _get_area_type(self, mnemonic):
+    #     if not hasattr(self, 'area_type'):
+    #         self.area_type = {}
+    #         for k, lbl in (('DEP', 'Départment'),
+    #                        #('CAN', 'Canton'),
+    #                        ('COM', 'Ville'),
+    #                        ('REG', 'Région')):
+    #             self.area_type[k], created = AreaType.objects.get_or_create(
+    #                                  txt_idx=k, defaults={'label': lbl})
+    #     return self.area_type[mnemonic]
 
     def handle(self, *args, **options):
         update = 'update' in options and options['update']
@@ -51,7 +51,7 @@ class Command(BaseCommand):
                                    "dans la base geofla." % dpt)
             departement = departement.all()[0]
             ref_dpt = Area.objects.filter(reference=dpt,
-                                           area_type=self._get_area_type('DEP'))
+                                           area_type=AreaType.objects.filter(txt_idx='DEP'))
             # def_loc = {'city': departement.nom_chf,
             #            'label': u"Préfecture",
             #            'point': departement.chf_lieu,
@@ -63,7 +63,7 @@ class Command(BaseCommand):
                                 'reference': dpt,
                                 'polygon': departement.limite,
                                 # 'default_location': loc,
-                                'area_type': self._get_area_type('DEP')})
+                                'area_type': AreaType.objects.filter(txt_idx='DEP')})
             else:
                 ref_dpt = ref_dpt.all()[0]
                 if update:
@@ -101,7 +101,7 @@ class Command(BaseCommand):
             for idx, commune in enumerate(Commune.objects.filter(
                                           insee_com__startswith=dpt)):
                 ref = Area.objects.filter(reference=commune.insee_com,
-                                            area_type=self._get_area_type('COM'))
+                                            area_type=AreaType.objects.filter(txt_idx='COM'))
                 # def_loc = {'city': commune.nom_comm,
                 #            'label': u"Mairie",
                 #            'point': commune.chf_lieu,
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                                           'reference': commune.insee_com,
                                           'polygon': commune.limite,
                                           # 'default_location': loc,
-                                          'area_type': self._get_area_type('COM')})
+                                          'area_type': AreaType.objects.filter(txt_idx='COM')})
 
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
