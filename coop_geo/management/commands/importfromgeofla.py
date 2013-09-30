@@ -51,7 +51,7 @@ class Command(BaseCommand):
                                    "dans la base geofla." % dpt)
             departement = departement.all()[0]
             ref_dpt = Area.objects.filter(reference=dpt,
-                                           area_type=AreaType.objects.filter(txt_idx='DEP'))
+                                           area_type=AreaType.objects.get(txt_idx='DEP'))
             # def_loc = {'city': departement.nom_chf,
             #            'label': u"Préfecture",
             #            'point': departement.chf_lieu,
@@ -63,7 +63,7 @@ class Command(BaseCommand):
                                 'reference': dpt,
                                 'polygon': departement.limite,
                                 # 'default_location': loc,
-                                'area_type': AreaType.objects.filter(txt_idx='DEP')})
+                                'area_type': AreaType.objects.get(txt_idx='DEP')})
             else:
                 ref_dpt = ref_dpt.all()[0]
                 if update:
@@ -101,7 +101,7 @@ class Command(BaseCommand):
             for idx, commune in enumerate(Commune.objects.filter(
                                           insee_com__startswith=dpt)):
                 ref = Area.objects.filter(reference=commune.insee_com,
-                                            area_type=AreaType.objects.filter(txt_idx='COM'))
+                                            area_type=AreaType.objects.get(txt_idx='COM'))
                 # def_loc = {'city': commune.nom_comm,
                 #            'label': u"Mairie",
                 #            'point': commune.chf_lieu,
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                                           'reference': commune.insee_com,
                                           'polygon': commune.limite,
                                           # 'default_location': loc,
-                                          'area_type': AreaType.objects.filter(txt_idx='COM')})
+                                          'area_type': AreaType.objects.get(txt_idx='COM')})
 
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
