@@ -52,26 +52,26 @@ class Command(BaseCommand):
             departement = departement.all()[0]
             ref_dpt = Area.objects.filter(reference=dpt,
                                            area_type=self._get_area_type('DEP'))
-            def_loc = {'city': departement.nom_chf,
-                       'label': u"Préfecture",
-                       'point': departement.chf_lieu,
-                       'is_ref_center': True}
+            # def_loc = {'city': departement.nom_chf,
+            #            'label': u"Préfecture",
+            #            'point': departement.chf_lieu,
+            #            'is_ref_center': True}
             if not ref_dpt.count():
-                loc = Location.objects.create(**def_loc)
+                # loc = Location.objects.create(**def_loc)
                 ref_dpt = Area.objects.create(**{
                                 'label': departement.nom_dept,
                                 'reference': dpt,
                                 'polygon': departement.limite,
-                                'default_location': loc,
+                                # 'default_location': loc,
                                 'area_type': self._get_area_type('DEP')})
             else:
                 ref_dpt = ref_dpt.all()[0]
                 if update:
                     ref_dpt.polygon = departement.limite
                     ref_dpt.save()
-                    for k in def_loc:
-                        setattr(ref_dpt.default_location, k, def_loc[k])
-                    ref_dpt.default_location.save()
+                    # for k in def_loc:
+                    #     setattr(ref_dpt.default_location, k, def_loc[k])
+                    # ref_dpt.default_location.save()
 
             # for idx, canton in enumerate(Canton.objects.filter(code_dept=dpt)):
             #     code_canton = str(canton.code_dept + canton.code_cant)
@@ -102,22 +102,22 @@ class Command(BaseCommand):
                                           insee_com__startswith=dpt)):
                 ref = Area.objects.filter(reference=commune.insee_com,
                                             area_type=self._get_area_type('COM'))
-                def_loc = {'city': commune.nom_comm,
-                           'label': u"Mairie",
-                           'point': commune.chf_lieu,
-                            'is_ref_center': True
-                           }
+                # def_loc = {'city': commune.nom_comm,
+                #            'label': u"Mairie",
+                #            'point': commune.chf_lieu,
+                #             'is_ref_center': True
+                #            }
                 if ref.count():
                     if not update:
                         continue
                     ref = ref.all()[0]
                     ref.polygon = commune.limite
                     ref.save()
-                    for k in def_loc:
-                        setattr(ref.default_location, k, def_loc[k])
-                    ref.default_location.save()
+                    # for k in def_loc:
+                    #     setattr(ref.default_location, k, def_loc[k])
+                    # ref.default_location.save()
                 else:
-                    loc = Location.objects.create(**def_loc)
+                    # loc = Location.objects.create(**def_loc)
                     ref = Area.objects.create(**{
                                           'label': commune.nom_comm,
                                           'reference': commune.insee_com,
