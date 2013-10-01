@@ -118,12 +118,12 @@ class Command(BaseCommand):
                     # ref.default_location.save()
                 else:
                     # loc = Location.objects.create(**def_loc)
-                    ref = Area.objects.create(**{
-                                          'label': commune.nom_comm,
-                                          'reference': commune.insee_com,
-                                          'polygon': commune.limite,
+                    ref = Area.objects.create()
+                                          'label'= commune.nom_comm,
+                                          'reference'= commune.insee_com,
+                                          'polygon'= commune.limite,
                                           # 'default_location': loc,
-                                          'area_type_id': AreaType.objects.get(txt_idx='COM').id})
+                                          'area_type_id'= AreaType.objects.get(txt_idx='COM').id)
 
                 #ref_canton = Canton.objects.get(id_geofla=commune.canton_id)
                 #ref_canton.add_child(ref)
